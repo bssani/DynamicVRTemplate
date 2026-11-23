@@ -18,7 +18,7 @@
 | D-06 | **헤드셋 안에 어떤 메시지도 없음** | 디버그·경고·안내 글 전부. 알림은 `UE_LOG`. 진행자 창·관전 화면은 PC에만 |
 | D-07 | **관전(spectator) 화면** | PC 모니터에 참가자 시야 + 지금 **차 이름**과 **hood 변형 이름**만(사용자 2026-11-24 Q-05). 경로는 AI_Driving·vBoR P5h/P5k 방식(Slate → 렌더 타깃 → `ISpectatorScreenController` `TexturePlusEye`, 뷰포트에 올리지 않음 — 올리면 헤드셋에만 간다, AI_Driving `README.md`). 배치는 vBoR P5k(시야 4:3 왼쪽, 오른쪽 칸) |
 | D-08 | **진행자(operator) 창** | vBoR P5i 방식의 따로 뜨는 OS 창(`SWindow`) + 에디터 툴바 버튼(P5j). 버튼 = 키보드와 같은 명령. 내용은 §5 |
-| D-09 | **이 리포 = 기능만, 맵은 회사 PC에서** | 사용자가 이 프로젝트를 회사 PC로 옮겨 회사 평지 도로 맵과 CAD를 붙인다(사용자 2026-11-24 Q-02). 리포에는 기능 시험용 단순 평지 맵과 샘플 차만 둔다. 회사 쪽 에셋은 `Content/CAD/`·`Content/Local/`(git 밖) |
+| D-09 | **이 리포 = 기능만, 맵은 회사 PC에서** | 사용자가 이 프로젝트를 회사 PC로 옮겨 회사 평지 도로 맵과 CAD를 붙인다(사용자 2026-11-24 Q-02). 리포에는 기능 시험용 단순 평지 맵과 샘플 차 BP만 둔다. 샘플 차의 Epic Vehicle 템플릿 에셋은 public에 올리지 않고 `Content/Vehicles/`(git 밖)에 로컬로 둔다([S1](Specs/S1-drive-rig.md) D11). 회사 쪽 에셋은 `Content/CAD/`·`Content/Local/`(git 밖) |
 | D-10 | **프로젝트** | `C:\Git\DynamicVRTemplate`, GitHub `bssani/DynamicVRTemplate` **public**. UE 5.7.4, Meta XR 1.205.0(git 밖), 에디터 MCP 플러그인은 vBoR `Plugins/`에서 복사(git 밖) |
 | D-11 | **작업 방식 = vBoR·ReachStudy와 같음** | Claude 명세·리뷰, Codex 앱 구현. 아주 작은 일은 Claude가 직접 |
 | D-12 | **주 콘텐츠는 hood가 주행 중 어떻게 보이느냐** | 주행은 수단이다(사용자 2026-11-24). 주행 감각·차량 튜닝·속도 표시에 일을 들이지 않는다. Chaos 차량은 템플릿 기본값에서 시작하고, 흔들림·멀미가 hood 보기를 방해할 때만 손본다 |
@@ -39,7 +39,7 @@
 
 | 요소 | 내용 |
 |---|---|
-| VR Pawn (C++) | 카메라(HMD 고정) + 추적 손 두 개(Meta XR 손 컴포넌트, AI_Driving `AI_DrivingPawn.cpp:135`). 이동 없음(키트 attach를 방해하지 않게) |
+| VR Pawn (C++) | 카메라(HMD 고정, S1) + 추적 손 두 개(S2, Meta XR 손 컴포넌트, AI_Driving `AI_DrivingPawn.cpp:135`). 이동 없음(키트 attach를 방해하지 않게) |
 | PlayerController (C++) | 휠·페달(RawInput)·개발용 키보드 → 차량 입력. 차·hood 교체 키, Reset 키 → 같은 명령 |
 | 차량 Actor (C++ 부모 + BP) | Chaos 바퀴 차량 하나. 공통 물리, 정렬점 4개(키트 `VRCal Align Point`), 가상 휠 자리(고정), 차 세트 목록. 차 세트 = 차체 mesh 묶음 + **휠 mesh** + hood 변형 목록(Q-04) |
 | Reset point (C++ Actor) | D-13. 레벨에 몇 개든 놓는다. 화살표 방향 = 차 방향 |
@@ -63,7 +63,7 @@
 | ID | 명세 | 핵심 | 완료 조건 |
 |---|---|---|---|
 | **S0** | 프로젝트 부트스트랩 | C++ 프로젝트, 규칙 문서, Meta XR·MCP 플러그인 복사(git 밖), git·GitHub | **완료 2026-11-24** (Claude). 빌드 결과는 개정 이력 |
-| **S1** | 주행 rig | VR Pawn, PlayerController 입력 전달(RawInput 휠·페달 + 개발용 키보드), 공통 차량 C++ 부모 + 샘플 차 BP, 시험용 평지 맵, Reset point + 페이드 Reset(D-13), VR 렌더 설정(Instanced Stereo와 가상 텍스처 충돌 — AI_Driving README) | 자동화 시험: 입력 전달, 가장 가까운 reset point 고르기·없을 때 시작 자리. Quest: 벅에서 주행, Reset (T-01) |
+| **S1** | 주행 rig — [명세](Specs/S1-drive-rig.md) | VR Pawn, PlayerController 입력 전달(RawInput 휠·페달 + 개발용 키보드), 공통 차량 C++ 부모 + 샘플 차 BP, 시험용 평지 맵, Reset point + 페이드 Reset(D-13), VR 렌더 설정(Instanced Stereo와 가상 텍스처 충돌 — AI_Driving README) | 자동화 시험: 입력 전달, 가장 가까운 reset point 고르기·없을 때 시작 자리. Quest: 벅에서 주행, Reset (T-01) |
 | **S2** | 휠 손 붙기 | D-05 컴포넌트, 에디터 표시·게임 숨김, 고정 포즈 손 | 자동화 시험: 진입·이탈 히스테리시스, 추적 끊김 유지, 게임에서 숨김. Quest (T-02) |
 | **S3** | 차·hood 교체 | §4 차 세트·명령·키, 쿨다운 | 자동화 시험: 교체 뒤 보이는 세트가 하나, 주행 중 교체에 물리 영향 없음, 동시 입력 (T-03) |
 | **S4** | 정렬 가져오기 | VRCalibrationKit을 넣고(키트 PR #1 머지 뒤) 차량에 정렬점, 정렬 레벨 | 키트 시험 통과. Quest: 정렬 → 재시작 복원, 차 교체 뒤 같은 자리 (T-04) |
@@ -96,3 +96,4 @@
 - 2026-11-24 — 초안. 사용자 답 반영: SgRP·주행 같음(D-02, 차 교체는 같은 레벨 mesh 교체), 벅에 휠·페달(D-03), 고정 포즈(D-05), 헤드셋 글 없음(D-06), 평지 맵(D-09), 작업 방식(D-11). Q-01~Q-06 열림.
 - 2026-11-24 — S0 완료(Claude). `DynamicVRTemplateEditor` Win64 Development 빌드 성공, 경고·오류 0(115 s, MetaXR 포함). 플러그인: ChaosVehiclesPlugin, XRBase, OpenXR, OpenXRHandTracking. Meta XR 1.205.0과 MCP 플러그인(McpAutomationBridge·UnrealAgent)은 vBoR `Plugins/`에서 로컬 복사, git 밖.
 - 2026-11-24 — Q-01~Q-06 사용자 답: D-03 RawInput·포스 피드백 없음, D-12 주 콘텐츠 = hood 보기, D-13 Reset(가까운 reset point + 페이드, recenter 없음), D-09 리포는 기능만, Q-04 휠 mesh는 차 세트에, 진행자 창에서 속도 뺌.
+- 2026-11-24 — S1 명세 작성. 차량은 possess하지 않고 `bRequiresControllerForInputs` false, 가상 휠은 실물 휠 축 값 그대로, Epic 샘플 차 에셋은 `Content/Vehicles/`(git 밖).

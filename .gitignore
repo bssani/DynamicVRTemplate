@@ -104,3 +104,6 @@ Plugins/McpAutomationBridge/
 
 # Site-only assets (e.g. the company road map). Not for this public repo.
 Content/Local/
+
+# Epic Vehicle template sample assets (Epic content license; local copy only, S1 D11).
+Content/Vehicles/
