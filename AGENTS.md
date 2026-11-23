@@ -6,7 +6,7 @@
 
 작업 방식과 규칙의 원본은 vBoR 리포다(ReachStudy와 같다). Codex와 Claude Code가 함께 읽고, `CLAUDE.md`는 이 파일을 가져와 Claude 전용 내용만 덧붙인다.
 
-> **이 리포는 public이다.** 차량 CAD·회사 이름·차명·프로그램명·일정·평가 결과를 커밋·PR·이슈·문서에 넣지 않는다. CAD는 `Content/CAD/`, 현장 전용 에셋(회사 맵 등)은 `Content/Local/`에만 둔다(둘 다 .gitignore). Meta 플러그인은 커밋하지 않는다(Oculus SDK License). Epic Vehicle 템플릿 에셋(`Content/Vehicles/`)도 커밋하지 않는다(S1 D11).
+> **이 리포는 public이다.** 차량 CAD·회사 이름·차명·프로그램명·일정·평가 결과를 커밋·PR·이슈·문서에 넣지 않는다. CAD는 `Content/CAD/`, 현장 전용 에셋(회사 맵 등)은 `Content/Local/`에만 둔다(둘 다 .gitignore). Meta 플러그인은 커밋하지 않는다(Oculus SDK License).
 
 ## 작업 방식 — 명세·리뷰는 Claude, 구현은 Codex
 

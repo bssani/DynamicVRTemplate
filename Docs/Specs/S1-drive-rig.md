@@ -40,7 +40,7 @@
 | D8 | **헤드셋 글 없음** | ReachStudy `UReachScreenMessageSubsystem`을 `UDvtScreenMessageSubsystem`으로 옮긴다(Game·PIE world만, 시작 때 `GAreScreenMessagesEnabled` false, 끝날 때 원래 값). 이 명세의 모든 알림은 `UE_LOG` |
 | D9 | **차량이 0대·2대 이상이면 주행하지 않는다** | controller가 차량을 못 찾거나 여럿 찾으면 `UE_LOG` Error 한 줄, 입력·attach·Reset을 하지 않는다(어느 차를 몰지 추측하지 않는다). 판정은 순수 함수(§6) |
 | D10 | **설정 바꿈** | `DynamicVRTemplate.uproject`에 `RawInput` 플러그인(Win64). `Config/DefaultEngine.ini`: `r.RayTracing=False`, `r.VirtualTextures=False`, `vr.InstancedStereo=True`(§0 AI_Driving 근거, 주석 한 줄씩 영어로), 기본 맵 = `L_DriveTest`(GameDefaultMap·EditorStartupMap), 기본 GameMode = `ADvtGameMode`(또는 BP 자식). `Config/DefaultInput.ini`에 RawInput 장치는 **넣지 않는다**(장치 ID는 회사 PC에서, README) |
-| D11 | **샘플 차 에셋은 git에 넣지 않는다** | Epic Vehicle 템플릿 에셋(skeletal mesh·physics asset·anim BP)은 public 리포에 올리지 않는다(Epic 콘텐츠 라이선스). `C:\Git\AI_Driving\Content\Vehicles\`(SportsCar·PhysicsMaterials)를 **같은 경로** `Content/Vehicles/`로 파일 복사한다(참조 경로 `/Game/Vehicles/...`가 그대로 맞게). `Content/Vehicles/`는 `.gitignore`에 있다(이 명세 커밋에서 Claude가 넣음). 샘플 BP·맵(우리 에셋)은 커밋한다 — 클론한 PC에서는 README대로 같은 폴더를 넣으면 열린다 |
+| D11 | **샘플 차 에셋은 git에 넣는다** | `C:\Git\AI_Driving\Content\Vehicles\`(SportsCar·PhysicsMaterials)를 **같은 경로** `Content/Vehicles/`로 파일 복사한다(참조 경로 `/Game/Vehicles/...`가 그대로 맞게). 사용자 결정(2026-11-24): Epic Vehicle 템플릿 에셋이지만 리포에 올려도 된다. 쓰지 않는 것(OffroadCar 등)은 복사하지 않는다 |
 
 ## 2. 지켜야 할 조건
 
@@ -49,7 +49,7 @@
 - Reset·주행 어디에서도 recenter(`ResetOrientationAndPosition` 등)를 부르지 않는다.
 - 장치 VID/PID·축 번호를 C++에 두지 않는다.
 - 차량 물리 값(엔진·변속·서스펜션)은 Vehicle 템플릿 기본값. 튜닝하지 않는다(D-12).
-- public: `Content/Vehicles/`(Epic 에셋), Meta XR, MCP 플러그인을 커밋하지 않는다. 커밋 전에 `git status`로 확인.
+- public: Meta XR, MCP 플러그인을 커밋하지 않는다. 커밋 전에 `git status`로 확인.
 
 ## 3. 범위 밖
 
@@ -100,8 +100,8 @@ E1은 CDO로, E10은 순수 함수로, E11은 ReachStudy S4b 시험 방식으로
 - non-unity(`-DisableUnity -Module=DynamicVRTemplate`)와 unity 빌드 성공, 경고·오류 0.
 - `DynamicVRTemplate.*` 전체 시험 통과(E1~E12).
 - §5 에셋·맵이 있고 `L_DriveTest`가 GUI 에디터에서 오류 없이 열린다. PIE에서 키보드 주행·Reset 동작(헤드셋 없이).
-- README에 "Setup"에 `Content/Vehicles/` 넣는 법(D11), 새 절 "Wheel and pedals"에 RawInput 장치 설정(Project Settings → Raw Input: VID/PID, 축 `Key`·`bInverted`·`Offset`)과 `IMC_Drive` 축 맞추는 법, 휠 회전 각도(`SteeringLockToLockDegrees`를 simracing 소프트웨어의 회전 범위와 같게) — 영어.
-- `git status`에 `Content/Vehicles/`·Meta XR·MCP 플러그인 없음.
+- README 새 절 "Wheel and pedals"에 RawInput 장치 설정(Project Settings → Raw Input: VID/PID, 축 `Key`·`bInverted`·`Offset`)과 `IMC_Drive` 축 맞추는 법, 휠 회전 각도(`SteeringLockToLockDegrees`를 simracing 소프트웨어의 회전 범위와 같게) — 영어.
+- `git status`에 Meta XR·MCP 플러그인 없음. `Content/Vehicles/`(D11)는 커밋에 있다.
 
 ## 8. 로컬에서 확인할 것 (사용자, Quest 3 + 벅)
 

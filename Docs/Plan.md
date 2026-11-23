@@ -18,7 +18,7 @@
 | D-06 | **헤드셋 안에 어떤 메시지도 없음** | 디버그·경고·안내 글 전부. 알림은 `UE_LOG`. 진행자 창·관전 화면은 PC에만 |
 | D-07 | **관전(spectator) 화면** | PC 모니터에 참가자 시야 + 지금 **차 이름**과 **hood 변형 이름**만(사용자 2026-11-24 Q-05). 경로는 AI_Driving·vBoR P5h/P5k 방식(Slate → 렌더 타깃 → `ISpectatorScreenController` `TexturePlusEye`, 뷰포트에 올리지 않음 — 올리면 헤드셋에만 간다, AI_Driving `README.md`). 배치는 vBoR P5k(시야 4:3 왼쪽, 오른쪽 칸) |
 | D-08 | **진행자(operator) 창** | vBoR P5i 방식의 따로 뜨는 OS 창(`SWindow`) + 에디터 툴바 버튼(P5j). 버튼 = 키보드와 같은 명령. 내용은 §5 |
-| D-09 | **이 리포 = 기능만, 맵은 회사 PC에서** | 사용자가 이 프로젝트를 회사 PC로 옮겨 회사 평지 도로 맵과 CAD를 붙인다(사용자 2026-11-24 Q-02). 리포에는 기능 시험용 단순 평지 맵과 샘플 차 BP만 둔다. 샘플 차의 Epic Vehicle 템플릿 에셋은 public에 올리지 않고 `Content/Vehicles/`(git 밖)에 로컬로 둔다([S1](Specs/S1-drive-rig.md) D11). 회사 쪽 에셋은 `Content/CAD/`·`Content/Local/`(git 밖) |
+| D-09 | **이 리포 = 기능만, 맵은 회사 PC에서** | 사용자가 이 프로젝트를 회사 PC로 옮겨 회사 평지 도로 맵과 CAD를 붙인다(사용자 2026-11-24 Q-02). 리포에는 기능 시험용 단순 평지 맵과 샘플 차만 둔다(샘플 차 에셋은 Epic Vehicle 템플릿, 리포에 올림 — 사용자 2026-11-24, [S1](Specs/S1-drive-rig.md) D11). 회사 쪽 에셋은 `Content/CAD/`·`Content/Local/`(git 밖) |
 | D-10 | **프로젝트** | `C:\Git\DynamicVRTemplate`, GitHub `bssani/DynamicVRTemplate` **public**. UE 5.7.4, Meta XR 1.205.0(git 밖), 에디터 MCP 플러그인은 vBoR `Plugins/`에서 복사(git 밖) |
 | D-11 | **작업 방식 = vBoR·ReachStudy와 같음** | Claude 명세·리뷰, Codex 앱 구현. 아주 작은 일은 Claude가 직접 |
 | D-12 | **주 콘텐츠는 hood가 주행 중 어떻게 보이느냐** | 주행은 수단이다(사용자 2026-11-24). 주행 감각·차량 튜닝·속도 표시에 일을 들이지 않는다. Chaos 차량은 템플릿 기본값에서 시작하고, 흔들림·멀미가 hood 보기를 방해할 때만 손본다 |
@@ -97,3 +97,4 @@
 - 2026-11-24 — S0 완료(Claude). `DynamicVRTemplateEditor` Win64 Development 빌드 성공, 경고·오류 0(115 s, MetaXR 포함). 플러그인: ChaosVehiclesPlugin, XRBase, OpenXR, OpenXRHandTracking. Meta XR 1.205.0과 MCP 플러그인(McpAutomationBridge·UnrealAgent)은 vBoR `Plugins/`에서 로컬 복사, git 밖.
 - 2026-11-24 — Q-01~Q-06 사용자 답: D-03 RawInput·포스 피드백 없음, D-12 주 콘텐츠 = hood 보기, D-13 Reset(가까운 reset point + 페이드, recenter 없음), D-09 리포는 기능만, Q-04 휠 mesh는 차 세트에, 진행자 창에서 속도 뺌.
 - 2026-11-24 — S1 명세 작성. 차량은 possess하지 않고 `bRequiresControllerForInputs` false, 가상 휠은 실물 휠 축 값 그대로, Epic 샘플 차 에셋은 `Content/Vehicles/`(git 밖).
+- 2026-11-24 — S1 D11 바꿈(사용자): 샘플 차 에셋 `Content/Vehicles/`를 리포에 올린다.
