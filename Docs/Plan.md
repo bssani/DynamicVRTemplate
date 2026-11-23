@@ -66,12 +66,12 @@
 | **S1** | 주행 rig — [명세](Specs/S1-drive-rig.md) | VR Pawn, PlayerController 입력 전달(RawInput 휠·페달 + 개발용 키보드), 공통 차량 C++ 부모 + 샘플 차 BP, 시험용 평지 맵, Reset point + 페이드 Reset(D-13), VR 렌더 설정(Instanced Stereo와 가상 텍스처 충돌 — AI_Driving README) | 자동화 시험: 입력 전달, 가장 가까운 reset point 고르기·없을 때 시작 자리. Quest: 벅에서 주행, Reset (T-01) |
 | **S2** | 휠 손 붙기 — [명세](Specs/S2-steering-grip.md) | D-05 컴포넌트, 에디터 표시·게임 숨김, 고정 포즈 손 | 자동화 시험: 진입·이탈 히스테리시스, 추적 끊김 유지, 게임에서 숨김. Quest (T-02) |
 | **S3** | 차·hood 교체 — [명세](Specs/S3-car-hood-switch.md) | §4 차 세트·명령·키, 쿨다운 | 자동화 시험: 교체 뒤 보이는 세트가 하나, 주행 중 교체에 물리 영향 없음, 동시 입력 (T-03) |
-| **S4** | 정렬 가져오기 | VRCalibrationKit을 넣고(키트 PR #1 머지 뒤) 차량에 정렬점, 정렬 레벨 | 키트 시험 통과. Quest: 정렬 → 재시작 복원, 차 교체 뒤 같은 자리 (T-04) |
+| **S4** | 정렬 가져오기 | VRCalibrationKit(`main@864946c`)을 넣고 차량에 정렬점, 정렬 레벨 | 키트 시험 통과. Quest: 정렬 → 재시작 복원, 차 교체 뒤 같은 자리 (T-04) |
 | **S5** | 관전 화면 | D-07 | 헤드셋에는 안 보이고 모니터에만 (T-05) |
 | **S6** | 진행자 창 | D-08, §5, 툴바 버튼 | 버튼 = 키 같은 명령 시험 (T-06) |
 | **S7** | 회사 환경 통합 | CAD 차체·hood(`Content/CAD/`), 회사 맵(`Content/Local/`), 실제 차 세트 | Quest 전체 흐름 (T-07) |
 
-순서: S1 → S2 → S3 → S4 → S5 → S6 → S7. S3은 S2 뒤(차마다 휠 반지름·손 자리를 S2 컴포넌트에 넣는다). S4는 VRCalibrationKit PR #1 머지를 기다린다.
+순서: S1 → S2 → S3 → S4 → S5 → S6 → S7. S3은 S2 뒤(차마다 휠 반지름·손 자리를 S2 컴포넌트에 넣는다). S4는 VRCalibrationKit `main@864946c`(PR #1 머지, 2026-11-24)를 가져온다.
 
 ## 7. 시험 (Quest 3, 상태는 전부 `not-tested`)
 
