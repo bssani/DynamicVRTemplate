@@ -66,7 +66,7 @@
 | **S1** | 주행 rig — [명세](Specs/S1-drive-rig.md) | VR Pawn, PlayerController 입력 전달(RawInput 휠·페달 + 개발용 키보드), 공통 차량 C++ 부모 + 샘플 차 BP, 시험용 평지 맵, Reset point + 페이드 Reset(D-13), VR 렌더 설정(Instanced Stereo와 가상 텍스처 충돌 — AI_Driving README) | 자동화 시험: 입력 전달, 가장 가까운 reset point 고르기·없을 때 시작 자리. Quest: 벅에서 주행, Reset (T-01) |
 | **S2** | 휠 손 붙기 — [명세](Specs/S2-steering-grip.md) | D-05 컴포넌트, 에디터 표시·게임 숨김, 고정 포즈 손 | 자동화 시험: 진입·이탈 히스테리시스, 추적 끊김 유지, 게임에서 숨김. Quest (T-02) |
 | **S3** | 차·hood 교체 — [명세](Specs/S3-car-hood-switch.md) | §4 차 세트·명령·키, 쿨다운 | 자동화 시험: 교체 뒤 보이는 세트가 하나, 주행 중 교체에 물리 영향 없음, 동시 입력 (T-03) |
-| **S4** | 정렬 가져오기 | VRCalibrationKit(`main@864946c`)을 넣고 차량에 정렬점, 정렬 레벨 | 키트 시험 통과. Quest: 정렬 → 재시작 복원, 차 교체 뒤 같은 자리 (T-04) |
+| **S4** | 정렬 가져오기 — [명세](Specs/S4-calibration.md) | VRCalibrationKit(`main@864946c`)을 넣고 차량에 정렬점, 정렬 레벨 | 키트 시험 통과. Quest: 정렬 → 재시작 복원, 차 교체 뒤 같은 자리 (T-04) |
 | **S5** | 관전 화면 | D-07 | 헤드셋에는 안 보이고 모니터에만 (T-05) |
 | **S6** | 진행자 창 | D-08, §5, 툴바 버튼 | 버튼 = 키 같은 명령 시험 (T-06) |
 | **S7** | 회사 환경 통합 | CAD 차체·hood(`Content/CAD/`), 회사 맵(`Content/Local/`), 실제 차 세트 | Quest 전체 흐름 (T-07) |
@@ -100,3 +100,4 @@
 - 2026-11-24 — S1 D11 바꿈(사용자): 샘플 차 에셋 `Content/Vehicles/`를 리포에 올린다.
 - 2026-11-24 — S2·S3 명세 작성(사용자 요청, 미리). S2: 런타임 디버그 선 없음(헤드셋에 보임), 에디터 전용 scene proxy. S3: 차 = `ADvtCarBody` Actor, hood = `UDvtHoodVariantComponent`, 차 바꾸면 hood 0(→ 아래에서 바꿈), 쿨다운 차·hood 따로, S3은 S2 뒤.
 - 2026-11-24 — S3 D6 바꿈(사용자): 차를 바꿔도 hood 번호 유지. 새 차에 그 번호가 없으면 마지막 번호, 고른 번호(`RequestedHoodIndex`)는 기억.
+- 2026-11-24 — S1 리뷰 1회차 통과(`Docs/Reviews/S1-drive-rig.md`). S4 명세 작성: 키트 `864946c` 복사(고치지 않음), 정렬점은 차량에(SgRP 같음), attach는 키트 우선·없으면 `DriverOrigin`, 다시 적용 `F9`, 정렬 레벨은 주행 없는 GameMode. S2 D7 손 연결을 attach와 분리.
