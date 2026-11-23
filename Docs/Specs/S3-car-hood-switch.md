@@ -27,8 +27,8 @@
 | D3 | **켜고 끄기 = 보이기만, 충돌은 늘 끔** | BeginPlay에서 차량 `Cars`의 모든 차 Actor 안 primitive의 충돌을 끈다(`NoCollision`, §0 이유) — 원래 값으로 되돌리지 않는다(차량에 붙은 차체가 충돌하면 안 되므로). 활성 차: Actor 보임 + 활성 hood 변형 밑 component 보임 + 다른 변형 밑 component 숨김. 비활성 차: Actor 숨김(`SetActorHiddenInGame`). 변형 component는 `SetVisibility(…, true)`(자식까지). material·mesh·transform은 건드리지 않는다. EndPlay에서 보이기를 원래 값으로 |
 | D4 | **차마다 휠·손 값** | `ADvtCarBody` 프로퍼티: `SteeringWheelMesh`(UStaticMesh, 비면 휠 mesh를 숨김), `SteeringWheelMeshTransform`(`SteeringWheelPivot` 기준 상대 transform — CAD 피벗 보정, §0), `RimRadiusCm`(S2 D1 값), `LeftGripHandTransform`·`RightGripHandTransform`(`SteeringWheelPivot` 기준). 차가 활성이 되면 차량의 `SteeringWheelMesh` component(S1 D1)에 mesh·transform을, `SteeringGrip`에 반지름을, 붙은 손 두 개에 transform을 넣는다. **`SteeringWheelPivot` 자리·회전 기준은 바꾸지 않는다**(벅 휠 위치 고정, Q-04). enter·release 거리는 차마다 두지 않는다(손·벅에 달린 값) |
 | D5 | **차량 = `ADvtVehicle`에 목록과 명령** | `Cars`(TArray<TObjectPtr<ADvtCarBody>>, 레벨 인스턴스에서 고름, 이 순서 = 차 번호). 명령: `SelectCar(int32)`·`NextCar()`·`PreviousCar()`, `SelectHood(int32)`·`NextHood()`·`PreviousHood()`. 규칙은 ReachStudy S4 D2와 같다(§0): 같은 번호 = 아무것도 안 함(이벤트 없음), 범위 밖 = 무시 + Warning, 상대 = 끝에서 돌아감·1개 이하면 아무것도 안 함, `SwitchCooldownSeconds`(기본 0.5 s, 0 = 끔) — **차와 hood는 쿨다운을 따로 센다**(차를 바꾼 직후 hood 다음 키를 막지 않게) |
-| D6 | **차를 바꾸면 hood는 0번** | 새 차의 첫 hood 변형(`SortOrder` 가장 작은 것). 변형이 없으면 hood 번호 −1. 차를 바꾼 것은 hood 쿨다운을 시작하지 않는다 |
-| D7 | **이벤트·게터** (S5 관전·S6 진행자 창이 쓴다) | `OnSelectionChanged(CarIndex, HoodIndex)` — 실제로 차나 hood가 바뀔 때 한 번(차를 바꿔 hood가 0이 되어도 한 번). 게터: `GetCarIndex`·`GetCarCount`·`GetCarName`·`GetHoodIndex`·`GetHoodCount`·`GetHoodName`(없으면 빈 글). 관전·진행자 글은 `DisplayName` 그대로 — `(k/N)` 붙이기는 S5·S6 몫 |
+| D6 | **차를 바꿔도 hood 번호는 유지** (사용자 2026-11-24) | 차량이 **고른 hood 번호** `RequestedHoodIndex`를 따로 기억한다 — `SelectHood`·`NextHood`·`PreviousHood`로 실제로 바뀔 때만 그 값으로 바뀐다(시작 0). 차를 바꾸면 새 차의 hood = `min(RequestedHoodIndex, 새 차 변형 수 − 1)`. 새 차에 변형이 없으면 −1. **차를 바꾸는 것은 `RequestedHoodIndex`를 바꾸지 않는다** — A에서 hood 2 → 변형 2개인 B(hood 1로 보임) → 다시 A면 hood 2. 차를 바꾼 것은 hood 쿨다운을 시작하지 않는다 |
+| D7 | **이벤트·게터** (S5 관전·S6 진행자 창이 쓴다) | `OnSelectionChanged(CarIndex, HoodIndex)` — 실제로 차나 hood가 바뀔 때 한 번(차를 바꾸며 hood 번호도 바뀌어도 한 번). 게터: `GetCarIndex`·`GetCarCount`·`GetCarName`·`GetHoodIndex`·`GetHoodCount`·`GetHoodName`(없으면 빈 글). 관전·진행자 글은 `DisplayName` 그대로 — `(k/N)` 붙이기는 S5·S6 몫 |
 | D8 | **차량 skeletal mesh(물리 몸체)는 차가 있으면 숨긴다** | `bHideChassisWhenCarsExist`(기본 true). `Cars`에 유효한 차가 하나 이상이면 BeginPlay에서 차량 skeletal mesh를 숨긴다 — **보이기만**, 물리·충돌은 그대로. 차가 없으면 S1처럼 보인다 |
 | D9 | **시작** | `InitialCar`(기본 0)·hood 0을 이벤트 없이 적용한다. `Cars`의 null 항목·중복 항목은 BeginPlay에서 빼고 항목마다 Warning(번호는 뺀 뒤 순서). `Cars`가 비면 명령은 아무것도 하지 않고 BeginPlay에서 Warning 한 줄 |
 | D10 | **키** (Q-06) | `IMC_Drive`(S1)에 액션 `IA_PreviousCar`(`PageUp`), `IA_NextCar`(`PageDown`), `IA_PreviousHood`(`[`), `IA_NextHood`(`]`). `ADvtPlayerController`가 S1에서 찾은 차량의 명령을 부른다. 번호로 고르기는 S6 진행자 창 |
@@ -71,7 +71,10 @@
 | E5 | `NextCar` 뒤 0.3 s에 `NextCar` (쿨다운 0.5) | 두 번째 무시. 0.5 s 정확히 → 받음 |
 | E6 | `NextCar` 직후 `NextHood` | 받음(쿨다운 따로) |
 | E7 | `NextCar` 직후 `SelectCar(0)` | 받음(절대 명령은 쿨다운에 안 막힘) |
-| E8 | hood 2번인 차에서 다른 차로 | 새 차 hood 0, 이벤트 1회(새 차, 0) |
+| E8 | A(변형 3) hood 2 → B(변형 3) | B hood 2, 이벤트 1회(B, 2) |
+| E8b | A hood 2 → B(변형 2) → A | B에서 hood 1, 다시 A에서 hood 2. `RequestedHoodIndex`는 내내 2 |
+| E8c | A hood 2 → C(변형 없음) → A | C에서 −1, 다시 A에서 2 |
+| E8d | B(변형 2)에서 hood 1 고름 → A(변형 3) | A hood 1(고른 번호가 1로 바뀌었으므로) |
 | E9 | 변형 없는 차 | hood −1, 이름 빈 글, `NextHood` 아무것도 안 함 |
 | E10 | `SortOrder` 2·0·1인 변형 셋 | 번호 0 = SortOrder 0인 것 |
 | E11 | 보이기 | 활성 차 Actor 보임, 활성 변형 밑 mesh 보임, 다른 변형 밑 mesh 숨김, 차체 mesh 보임, 비활성 차 Actor 숨김 |

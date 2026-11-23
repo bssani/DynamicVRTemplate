@@ -43,7 +43,7 @@
 | PlayerController (C++) | 휠·페달(RawInput)·개발용 키보드 → 차량 입력. 차·hood 교체 키, Reset 키 → 같은 명령 |
 | 차량 Actor (C++ 부모 + BP) | Chaos 바퀴 차량 하나. 공통 물리, 정렬점 4개(키트 `VRCal Align Point`), 가상 휠 자리(고정), 붙은 손, 차 목록 `Cars`. 차 = 차량에 attach한 차체 Actor(`ADvtCarBody`) — 차체 mesh + 휠 mesh·반지름·손 자리(Q-04) + hood 변형 component들 ([S3](Specs/S3-car-hood-switch.md)) |
 | Reset point (C++ Actor) | D-13. 레벨에 몇 개든 놓는다. 화살표 방향 = 차 방향 |
-| 차·hood 교체 | 명령 `SelectCar(i)`·`NextCar`·`PreviousCar`, `SelectHood(i)`·`NextHood`·`PreviousHood`. 상대 명령은 전환 뒤 쿨다운(차·hood 따로). 차를 바꾸면 hood는 그 차의 첫 변형. 보이기만 바꾸고, 차체·hood의 충돌은 늘 끈다(차량 자신과 부딪히지 않게). ReachStudy `AReachDoorVariants` 규칙 ([S3](Specs/S3-car-hood-switch.md)) |
+| 차·hood 교체 | 명령 `SelectCar(i)`·`NextCar`·`PreviousCar`, `SelectHood(i)`·`NextHood`·`PreviousHood`. 상대 명령은 전환 뒤 쿨다운(차·hood 따로). 차를 바꿔도 hood 번호는 유지(새 차에 그 번호가 없으면 마지막 번호, 고른 번호는 기억 — 사용자 2026-11-24). 보이기만 바꾸고, 차체·hood의 충돌은 늘 끈다(차량 자신과 부딪히지 않게). ReachStudy `AReachDoorVariants` 규칙 ([S3](Specs/S3-car-hood-switch.md)) |
 | 휠 손 붙기 컴포넌트 (C++) | D-05. `UDvtSteeringGripComponent`, 에디터 표시는 scene proxy(Play 중 `bHiddenInGame`으로 숨김), 런타임 디버그 선 없음 ([S2](Specs/S2-steering-grip.md)) |
 | 정렬 | VRCalibrationKit(복사해 넣고 출처 커밋을 적음). GameMode가 Stage 원점·WorldToMeters 100. 정렬 레벨은 따로(카메라는 거기서만) |
 | 관전 화면 | D-07 |
@@ -98,4 +98,5 @@
 - 2026-11-24 — Q-01~Q-06 사용자 답: D-03 RawInput·포스 피드백 없음, D-12 주 콘텐츠 = hood 보기, D-13 Reset(가까운 reset point + 페이드, recenter 없음), D-09 리포는 기능만, Q-04 휠 mesh는 차 세트에, 진행자 창에서 속도 뺌.
 - 2026-11-24 — S1 명세 작성. 차량은 possess하지 않고 `bRequiresControllerForInputs` false, 가상 휠은 실물 휠 축 값 그대로, Epic 샘플 차 에셋은 `Content/Vehicles/`(git 밖).
 - 2026-11-24 — S1 D11 바꿈(사용자): 샘플 차 에셋 `Content/Vehicles/`를 리포에 올린다.
-- 2026-11-24 — S2·S3 명세 작성(사용자 요청, 미리). S2: 런타임 디버그 선 없음(헤드셋에 보임), 에디터 전용 scene proxy. S3: 차 = `ADvtCarBody` Actor, hood = `UDvtHoodVariantComponent`, 차 바꾸면 hood 0, 쿨다운 차·hood 따로, S3은 S2 뒤.
+- 2026-11-24 — S2·S3 명세 작성(사용자 요청, 미리). S2: 런타임 디버그 선 없음(헤드셋에 보임), 에디터 전용 scene proxy. S3: 차 = `ADvtCarBody` Actor, hood = `UDvtHoodVariantComponent`, 차 바꾸면 hood 0(→ 아래에서 바꿈), 쿨다운 차·hood 따로, S3은 S2 뒤.
+- 2026-11-24 — S3 D6 바꿈(사용자): 차를 바꿔도 hood 번호 유지. 새 차에 그 번호가 없으면 마지막 번호, 고른 번호(`RequestedHoodIndex`)는 기억.
