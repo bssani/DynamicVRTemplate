@@ -3,7 +3,7 @@
 Seated VR driving on a physical seating buck (Unreal Engine 5.7.4, Meta Quest 3 over Link, hand tracking, Chaos Vehicles).
 The driver sits in a physical buck with a steering wheel and pedals and drives a virtual car. Car body designs and hood variants can be switched at runtime. A spectator view goes to the PC monitor and an operator window controls the session; nothing is shown as text inside the headset.
 
-Status: S4 buck alignment. Device testing remains not-tested. See [Docs/Plan.md](Docs/Plan.md) (Korean).
+Status: S5 spectator screen. Device testing remains not-tested. See [Docs/Plan.md](Docs/Plan.md) (Korean).
 
 ## Setup
 
@@ -63,3 +63,25 @@ Enable Spatial Data in Link and look toward the calibrated area on Play. Wait fo
 | `anchor not found` | Check Link Spatial Data, look toward the calibrated area, restart Play. Recalibrate if it persists. |
 
 With anchors disabled, saved values are valid only while the Stage origin stays unchanged; a Link reconnect can invalidate them. Remove `Config/UserEngine.ini` before automated tests because it overrides test defaults. Quest 3 + buck validation is T-04 and remains `not-tested`.
+
+## Spectator screen
+
+With Quest 3 + Link active in `L_DriveTest`, the PC game window shows the participant's eye view at 4:3 on the left and the current car and hood names in an opaque panel on the right. The panel goes only to the PC spectator screen; it never appears inside the headset. It starts only when exactly one vehicle has a selected car. `L_Calibrate` keeps the engine's default spectator view. Without an active headset, the subsystem stays silent and stops trying after 30 s.
+
+Set names in `ADvtCarBody::DisplayName` and `UDvtHoodVariantComponent::DisplayName`. Empty names use `Car k` or `Hood k` (one-based). Cars without hood variants hide the entire hood group. Keep names short: **24 characters or fewer recommended**. Names wrap within the panel and use an ellipsis beyond three lines. Keyboard car and hood switches refresh the panel within 0.1 s at the default redraw rate.
+
+To override defaults, add this section to `Config/DefaultGame.ini` and reopen the editor:
+
+```ini
+[/Script/DynamicVRTemplate.DvtSpectatorSubsystem]
+EyeAspect=1.5
+MinPanelWidth=0.4
+RedrawsPerSecond=10
+HeadingFontSize=16
+CarFontSize=40
+HoodFontSize=36
+```
+
+`EyeAspect` defaults to 4/3. `MinPanelWidth` defaults to 0.37 of window height; the eye shrinks proportionally if the window is too narrow. The panel follows the game window's client size, including moving between monitors. `BackgroundColor`, `TextColor`, `SecondaryTextColor`, and `LineColor` also accept config overrides as linear `(R=...,G=...,B=...,A=1)` values; defaults are converted from sRGB #131a26, #eef2f7, #9aa6b8, and #2e3a4e.
+
+In Windows Display settings, extend the desktop to the spectator monitor, then move the PC game window onto that monitor. Quest 3 + Link validation is T-05 and remains `not-tested`: confirm the eye view is visible, the headset has no panel, switching updates names, and resizing preserves the layout.
