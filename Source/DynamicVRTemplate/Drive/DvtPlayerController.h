@@ -47,6 +47,7 @@ private:
     void SetDriveVehicleForTest(ADvtVehicle* InVehicle) { Vehicle = InVehicle; }
 #endif
     void AttachVRPawn();
+    void ConnectTrackedHands();
     void Steer(const FInputActionValue& Value);
     void Throttle(const FInputActionValue& Value);
     void Brake(const FInputActionValue& Value);

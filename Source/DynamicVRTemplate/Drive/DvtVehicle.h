@@ -6,6 +6,8 @@
 
 class USceneComponent;
 class UStaticMeshComponent;
+class UDvtSteeringGripComponent;
+class USkeletalMeshComponent;
 
 UCLASS()
 class DYNAMICVRTEMPLATE_API ADvtVehicle : public AWheeledVehiclePawn
@@ -23,6 +25,12 @@ public:
     TObjectPtr<USceneComponent> SteeringWheelPivot;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Drive")
     TObjectPtr<UStaticMeshComponent> SteeringWheelMesh;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="VR|Grip")
+    TObjectPtr<UDvtSteeringGripComponent> SteeringGrip;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="VR|Grip")
+    TObjectPtr<USkeletalMeshComponent> LeftGripHand;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="VR|Grip")
+    TObjectPtr<USkeletalMeshComponent> RightGripHand;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Drive", meta=(Units="deg", ClampMin="0"))
     float SteeringLockToLockDegrees = 900;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Drive")
