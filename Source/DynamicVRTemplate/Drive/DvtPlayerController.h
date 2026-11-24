@@ -28,6 +28,21 @@ public:
     UFUNCTION(BlueprintCallable, Category="Alignment")
     void ReapplyAlignment();
 
+    UFUNCTION(BlueprintCallable, Category="Cars")
+    void PreviousCar();
+    UFUNCTION(BlueprintCallable, Category="Cars")
+    void NextCar();
+    UFUNCTION(BlueprintCallable, Category="Cars")
+    void PreviousHood();
+    UFUNCTION(BlueprintCallable, Category="Cars")
+    void NextHood();
+    UFUNCTION(BlueprintCallable, Category="Cars")
+    void SelectCar(int32 Index);
+    UFUNCTION(BlueprintCallable, Category="Cars")
+    void SelectHood(int32 Index);
+    ADvtVehicle* GetDriveVehicle() const;
+    FDvtCommandDecision CanResetVehicle() const;
+
     UPROPERTY(EditDefaultsOnly, Category="Drive|Input")
     TObjectPtr<UInputAction> ReapplyAlignmentAction;
 
@@ -60,6 +75,7 @@ private:
     friend class FDvtInputs;
 #if WITH_DEV_AUTOMATION_TESTS
     friend struct FDvtCalibrationTestAccess;
+    friend struct FDvtOperatorTestAccess;
     TFunction<bool(UVRCalAlignmentComponent*)> ReapplyForTest;
     void SetDriveVehicleForTest(ADvtVehicle* InVehicle) { Vehicle = InVehicle; }
 #endif
@@ -72,10 +88,6 @@ private:
     void ThrottleCompleted(const FInputActionValue& Value);
     void BrakeCompleted(const FInputActionValue& Value);
     void AdvanceReset(float DeltaSeconds);
-    void PreviousCar();
-    void NextCar();
-    void PreviousHood();
-    void NextHood();
 
     UPROPERTY(Transient)
     TObjectPtr<ADvtVehicle> Vehicle;

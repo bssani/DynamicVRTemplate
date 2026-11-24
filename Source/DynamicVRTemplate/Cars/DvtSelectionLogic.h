@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UI/DvtCommandDecision.h"
 
 namespace DvtSelection
 {
@@ -33,9 +34,39 @@ namespace DvtSelection
             HoodIndex = HoodCount() > 0 ? FMath::Min(RequestedHoodIndex, HoodCount() - 1) : -1;
         }
 
+        FDvtCommandDecision CanSelectCar(int32 Index) const
+        {
+            if (HoodCounts.IsEmpty()) { return {false, TEXT("No cars in this vehicle")}; }
+            if (!HoodCounts.IsValidIndex(Index)) { return {false, TEXT("Invalid car index")}; }
+            return Index == CarIndex ? FDvtCommandDecision{false, TEXT("Current")} : FDvtCommandDecision{};
+        }
+
+        FDvtCommandDecision CanSelectHood(int32 Index) const
+        {
+            if (HoodCount() == 0) { return {false, TEXT("No hoods")}; }
+            if (Index < 0 || Index >= HoodCount()) { return {false, TEXT("Invalid hood index")}; }
+            return Index == HoodIndex ? FDvtCommandDecision{false, TEXT("Current")} : FDvtCommandDecision{};
+        }
+
+        FDvtCommandDecision CanStepCar(double Now, double Cooldown) const
+        {
+            if (HoodCounts.IsEmpty()) { return {false, TEXT("No cars in this vehicle")}; }
+            if (HoodCounts.Num() <= 1) { return {false, TEXT("Only one car")}; }
+            return Cooldown > 0 && Now - LastCarTime < Cooldown
+                ? FDvtCommandDecision{false, TEXT("Switching\u2026")} : FDvtCommandDecision{};
+        }
+
+        FDvtCommandDecision CanStepHood(double Now, double Cooldown) const
+        {
+            if (HoodCount() == 0) { return {false, TEXT("No hoods")}; }
+            if (HoodCount() <= 1) { return {false, TEXT("Only one hood")}; }
+            return Cooldown > 0 && Now - LastHoodTime < Cooldown
+                ? FDvtCommandDecision{false, TEXT("Switching\u2026")} : FDvtCommandDecision{};
+        }
+
         bool SelectCar(int32 Index, double Now)
         {
-            if (!HoodCounts.IsValidIndex(Index) || Index == CarIndex) { return false; }
+            if (!CanSelectCar(Index)) { return false; }
             CarIndex = Index;
             ApplyRequestedHood();
             LastCarTime = Now;
@@ -44,7 +75,7 @@ namespace DvtSelection
 
         bool SelectHood(int32 Index, double Now)
         {
-            if (Index < 0 || Index >= HoodCount() || Index == HoodIndex) { return false; }
+            if (!CanSelectHood(Index)) { return false; }
             RequestedHoodIndex = HoodIndex = Index;
             LastHoodTime = Now;
             return true;
@@ -52,14 +83,14 @@ namespace DvtSelection
 
         bool StepCar(int32 Direction, double Now, double Cooldown)
         {
-            if (HoodCounts.Num() <= 1 || (Cooldown > 0 && Now - LastCarTime < Cooldown)) { return false; }
+            if (!CanStepCar(Now, Cooldown)) { return false; }
             return SelectCar((CarIndex + Direction + HoodCounts.Num()) % HoodCounts.Num(), Now);
         }
 
         bool StepHood(int32 Direction, double Now, double Cooldown)
         {
             const int32 Count = HoodCount();
-            if (Count <= 1 || (Cooldown > 0 && Now - LastHoodTime < Cooldown)) { return false; }
+            if (!CanStepHood(Now, Cooldown)) { return false; }
             return SelectHood((HoodIndex + Direction + Count) % Count, Now);
         }
     };

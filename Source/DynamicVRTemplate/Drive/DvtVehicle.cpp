@@ -120,6 +120,17 @@ FText ADvtVehicle::GetHoodName() const
 
 double ADvtVehicle::ReadSwitchTimeSeconds() const { return GetWorld()->GetTimeSeconds(); }
 
+FText ADvtVehicle::GetCarNameAt(int32 Index) const
+{
+    return Cars.IsValidIndex(Index) && IsValid(Cars[Index]) ? Cars[Index]->DisplayName : FText::GetEmpty();
+}
+
+FText ADvtVehicle::GetHoodNameAt(int32 Index) const
+{
+    const ADvtCarBody* Car = GetSelectedCar();
+    return Car ? Car->GetHoodName(Index) : FText::GetEmpty();
+}
+
 void ADvtVehicle::ApplySelection(bool bCarChanged, bool bNotify)
 {
     ADvtCarBody* Selected = GetSelectedCar();

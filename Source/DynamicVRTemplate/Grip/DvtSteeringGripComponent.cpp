@@ -83,6 +83,8 @@ void UDvtSteeringGripComponent::ApplyVisuals(EControllerHand Hand, bool Tracked)
 
 void UDvtSteeringGripComponent::ApplyHandSample(EControllerHand Hand, bool TrackerValid, bool Tracked, float DistanceCm)
 {
+    bTrackingAvailable = TrackerValid;
+    (Hand == EControllerHand::Left ? bLeftTracked : bRightTracked) = Tracked;
     EDvtHandGrip& Current = Hand == EControllerHand::Left ? LeftGrip : RightGrip;
     const EDvtHandGrip Next = DvtGrip::NextGrip(Current == EDvtHandGrip::Gripped, TrackerValid, Tracked,
         DistanceCm, GripEnterDistanceCm, GripReleaseDistanceCm) ? EDvtHandGrip::Gripped : EDvtHandGrip::Released;
@@ -104,6 +106,7 @@ void UDvtSteeringGripComponent::TickComponent(float DeltaTime, ELevelTick TickTy
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     if (!LeftTrackedHand.IsValid() || !RightTrackedHand.IsValid())
     {
+        bTrackingAvailable = bLeftTracked = bRightTracked = false;
         // No pawn connection yet; keep the fixed hands visible (S2 D7).
         if (LeftGripHand) { LeftGripHand->SetVisibility(true, true); }
         if (RightGripHand) { RightGripHand->SetVisibility(true, true); }

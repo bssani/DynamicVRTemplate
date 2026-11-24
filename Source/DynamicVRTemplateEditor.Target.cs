@@ -8,5 +8,6 @@ public class DynamicVRTemplateEditorTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V6;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_7;
 		ExtraModuleNames.Add("DynamicVRTemplate");
+		ExtraModuleNames.Add("DynamicVRTemplateEditorTools");
 	}
 }

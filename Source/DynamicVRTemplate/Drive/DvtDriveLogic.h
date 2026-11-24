@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UI/DvtCommandDecision.h"
 
 namespace DvtDrive
 {
@@ -34,9 +35,14 @@ namespace DvtDrive
         float Remaining = 0;
         float FadeIn = 0;
 
+        FDvtCommandDecision CanRequest() const
+        {
+            return Phase == EResetPhase::Idle ? FDvtCommandDecision{} : FDvtCommandDecision{false, TEXT("Reset in progress")};
+        }
+
         bool Request(float OutSeconds, float InSeconds)
         {
-            if (Phase != EResetPhase::Idle) { return false; }
+            if (!CanRequest()) { return false; }
             Phase = EResetPhase::FadingOut;
             Remaining = FMath::Max(0.f, OutSeconds);
             FadeIn = FMath::Max(0.f, InSeconds);

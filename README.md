@@ -85,3 +85,24 @@ HoodFontSize=36
 `EyeAspect` defaults to 4/3. `MinPanelWidth` defaults to 0.37 of window height; the eye shrinks proportionally if the window is too narrow. The panel follows the game window's client size, including moving between monitors. `BackgroundColor`, `TextColor`, `SecondaryTextColor`, and `LineColor` also accept config overrides as linear `(R=...,G=...,B=...,A=1)` values; defaults are converted from sRGB #131a26, #eef2f7, #9aa6b8, and #2e3a4e.
 
 In Windows Display settings, extend the desktop to the spectator monitor, then move the PC game window onto that monitor. Quest 3 + Link validation is T-05 and remains `not-tested`: confirm the eye view is visible, the headset has no panel, switching updates names, and resizing preserves the layout.
+
+## Operator window
+
+Play a driving level such as `L_DriveTest` to open the separate **DynamicVRTemplate Operator** PC window. It shows the current car and hood, alignment state and reason, anchor discovery, and each hand's tracking and wheel grip state. The calibration level does not open this window. It never draws text inside the headset.
+
+The editor Play toolbar's **Operator** button brings the window forward, restores it after minimizing, or reopens it after Alt+F4. Stop Play to close it. Its position and client size are remembered for the next Play in the same editor session. Resize the window and scroll to reach all panels.
+
+| Button | Game window key |
+|---|---|
+| Previous / next car | PageUp / PageDown |
+| Select a car from the list | No key; direct selection |
+| Previous / next hood | [ / ] |
+| Select a hood from the list | No key; direct selection |
+| Reapply alignment | F9 |
+| Reset vehicle | Backspace |
+
+Buttons call the same controller commands as these keys. Unavailable commands are disabled with a reason in the tooltip. Relative car and hood switches use separate 0.5 s cooldowns; list selections bypass the cooldown and start a new one. The current list selection is disabled and marked **Current**. **Reapply alignment** is the only primary button, and only when alignment needs checking and anchor discovery is idle. Long names and alignment reasons use an ellipsis; hover for the full text.
+
+The window does not retain focus: after showing it or clicking a button, focus and activation return to the game window so wheel, pedal, and keyboard input can continue there. In Windows Display settings, **extend** the desktop across both monitors. Put the game/spectator window on the spectator monitor and this operator window on the operator monitor.
+
+Quest 3 + Link + buck validation is **T-06, not-tested**. First check that wheel and pedal input continues while clicking operator buttons. Then check shortcuts, alignment, hand states, minimize/restore, and the headset's lack of text.

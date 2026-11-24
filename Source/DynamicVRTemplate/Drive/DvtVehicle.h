@@ -73,6 +73,13 @@ public:
     UFUNCTION(BlueprintPure, Category="Cars")
     FText GetHoodName() const;
 
+    FDvtCommandDecision CanSelectCar(int32 Index) const { return Selection.CanSelectCar(Index); }
+    FDvtCommandDecision CanSelectHood(int32 Index) const { return Selection.CanSelectHood(Index); }
+    FDvtCommandDecision CanStepCar() const { return Selection.CanStepCar(ReadSwitchTimeSeconds(), SwitchCooldownSeconds); }
+    FDvtCommandDecision CanStepHood() const { return Selection.CanStepHood(ReadSwitchTimeSeconds(), SwitchCooldownSeconds); }
+    FText GetCarNameAt(int32 Index) const;
+    FText GetHoodNameAt(int32 Index) const;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Drive")
     TObjectPtr<USceneComponent> DriverOrigin;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Drive")
