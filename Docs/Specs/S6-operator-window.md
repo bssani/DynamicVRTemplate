@@ -120,7 +120,7 @@
 
 1. **가장 먼저(위험, §0):** 가속 페달을 밟고 휠을 돌리는 중에 진행자 창 버튼(`Next hood` 등)을 누른다. **차가 계속 가속하고 휠이 계속 듣는지** 본다. 끊기면 그대로 멈추고 알려 준다(RawInput 등록 창 문제일 수 있음 — 다음 수를 정한다).
 2. 누른 뒤 키보드 단축키(`PageDown`, `]`, `Backspace`, `F9`)가 바로 되는지 본다.
-3. 모든 버튼을 한 번씩: 차·hood 이전·다음·목록, `Reset vehicle`(페이드 뒤 가까운 reset point), `Reapply alignment`(S4 — 로그 `Alignment …`). 흐린 버튼이 상태와 맞는지(쿨다운 0.5 s 깜빡임은 정상).
+3. 모든 버튼을 한 번씩: 차·hood 이전·다음·목록, `Reset vehicle`(페이드 뒤 가까운 reset point), `Reapply alignment`(S4 — 저장값이 있으면 로그 `Alignment …`, 없으면 로그 없이 창의 정렬 줄이 `No saved alignment`). 흐린 버튼이 상태와 맞는지(쿨다운 0.5 s 깜빡임은 정상).
 4. 정렬 줄이 `Applied`인지, Link를 끊었다 이으면 `Finding anchor…`를 거쳐 `Applied`로 돌아오는지 본다.
 5. 손을 휠에 대고 떼며 `On wheel`·`Off wheel`, 손을 시야 밖으로 빼며 `Not tracked`를 본다.
 6. 창을 최소화하거나 뒤로 보낸 뒤 툴바 `Operator`로 다시 앞으로 오는지, Play를 멈추면 닫히고 다음 Play에 같은 자리에 뜨는지 본다.

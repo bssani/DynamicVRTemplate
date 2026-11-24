@@ -84,7 +84,7 @@
 - `BP_SampleVehicle`: 점 4개 자리(D8), `FloorLocalZCm`. 차량 루트 scale이 1인지(BP와 `L_DriveTest`·`L_Calibrate` 인스턴스 모두) 확인하고 값을 보고에 적는다 — 틀려도 키트가 아무 글도 내지 않는다(§0).
 - `IA_ReapplyAlignment` + `IMC_Drive`에 `F9`.
 - `Content/Samples/Maps/L_Calibrate`(D5).
-- 헤드셋 없는 PIE로 `L_DriveTest`를 열어 로그에 `Alignment …` 줄이 `No saved value`로 나오고(Pawn·루트·WorldToMeters 검사는 통과) VR Pawn이 `DriverOrigin`에 붙어 있는지 본다. `L_Calibrate`를 열어 오류 없이 시작하는지 본다(카메라는 헤드셋이 없으면 실패 로그 — 정상). 저장하고 에디터를 닫는다.
+- 헤드셋 없는 PIE로 `L_DriveTest`를 열어 MCP로 읽는다(Q4-3): 차량 정렬 component `State = NoSavedValue`, `Reason`이 `No saved value`로 시작, VR Pawn의 attach 부모 = 차량 `DriverOrigin`, Pawn `bUseControllerRotationYaw` 거짓, World Settings `WorldToMeters` 100. **저장값이 없으면 키트는 `Alignment …` 로그를 내지 않고 Pawn·루트·WorldToMeters 검사도 하지 않는다**(키트 `VRCalAlignmentComponent.cpp:98` 조기 반환 — 로그는 `:135`, 검사는 `:122-124`). 그래서 로그 줄을 기대하지 않는다. Pawn 조건은 E11로 본다. `L_Calibrate`를 열어 오류 없이 시작하는지 본다(카메라는 헤드셋이 없으면 실패 로그 — 정상). 저장하고 에디터를 닫는다.
 
 ## 6. 경계 상황과 시험 (자동화 `DynamicVRTemplate.S4.*`)
 
@@ -100,14 +100,15 @@
 | E8 | 정렬 GameMode CDO | PlayerController 클래스가 `ADvtPlayerController`가 아니다, Pawn = `ADvtVRPawn` |
 | E9 | 키트 시험 | `VRCalibrationKit.*` 전체 통과(키트 그대로 복사했는지 — 46개) |
 | E10 | 샘플 차량 scale | `BP_SampleVehicle` CDO의 루트 component 상대 scale = (1,1,1). 레벨 인스턴스는 §5에서 눈으로 |
+| E11 | 키트 Pawn 조건(`VRCalAlignmentComponent.cpp:122-124`) — 저장값 없는 PIE에서는 키트가 검사하지 않으므로 따로 본다(Q4-3) | `ADvtVRPawn` CDO에 루트 component가 있고 `bUseControllerRotationYaw` 거짓. `BP_SampleVehicle` CDO에 루트 component가 있음. `ADvtGameMode`가 시험 world의 `WorldToMeters`를 100으로 둠(`Drive/DvtGameMode.cpp:15`. S1 시험에는 없으니 새로 만든다) |
 
-E2~E4는 순수 함수, E5·E6은 시험 world(S1 시험 fixture 방식)로. 실제 정렬은 Quest(T-04).
+E2~E4는 순수 함수, E5·E6은 시험 world(S1 시험 fixture 방식)로, E10·E11은 CDO로. 실제 정렬은 Quest(T-04).
 
 ## 7. 완료 조건
 
 - non-unity(`-DisableUnity -Module=DynamicVRTemplate`)와 unity 빌드 성공, 경고·오류 0. 키트 모듈 non-unity도 한 번(`-Module=VRCalibrationCore`, `-Module=VRCalibrationMarker`).
 - `DynamicVRTemplate.*`와 `VRCalibrationKit.*` 전체 통과. 시험 전에 `Config/UserEngine.ini`가 없어야 한다(키트 Integration-Guide §7 — 시험 기본값을 덮음).
-- §5 확인 결과(로그 줄·attach 부모)를 보고에 적는다.
+- §5 확인 결과(MCP로 읽은 `State`·`Reason`·attach 부모·`bUseControllerRotationYaw`·`WorldToMeters`)를 보고에 적는다.
 - README 새 절 "Buck alignment"(영어): 키트 출처 커밋, 마커 인쇄(키트 리포 `Docs/Markers/`, 100 % 60 mm), 정렬점 자리 넣기(SgRP 기준 벅 고정점, `FloorLocalZCm`), `L_Calibrate`에서 M → G → S, 주행 레벨 `F9` 다시 적용, 앵커 켜기(`Config/UserEngine.ini`), 글은 Output Log에만(D6 — 정렬점 번호 1–4만 G~H 사이 헤드셋에 보임), §8의 다시 보정 표(가디언 다시 그림·벅 옮김 → M → S)와 복원 판정(M만 → |dX|·|dY| 2 cm 안), 차량 루트 scale = 1(틀리면 조용히 적용 안 됨).
 - `git status`에 Meta XR·MCP 플러그인·`Saved/`·`UserEngine.ini` 없음. `Plugins/VRCalibrationKit/`는 커밋에 있다.
 
@@ -133,3 +134,4 @@ E2~E4는 순수 함수, E5·E6은 시험 world(S1 시험 fixture 방식)로. 실
 
 - Q1 (닫힘, 2026-11-24): 정렬 레벨에서도 정렬 도구 진행 글을 헤드셋에 보이게 할까? → **안 보임**(D6 그대로). PC Output Log로 본다.
 - Q2 (닫힘, 2026-11-24): G를 누르면 키트가 정렬점 위에 번호 1–4(TextRender)를 헤드셋에 보인다. 어떻게 할까? → **정렬 레벨만 예외로 허용**(키트 수정 없음). 처음 명세가 번호를 "글이 아닌 표시"로 잘못 적었다(Claude, 키트 헤더 대조로 찾음).
+- Q3 (닫힘, 2026-11-24, Codex Q4-3): 저장값 없는 PIE의 확인 방법 → 로그 대신 MCP 상태 읽기 + E11(§5). 처음 명세가 키트의 조기 반환을 보지 않고 로그가 나온다고 적었다(Claude).
