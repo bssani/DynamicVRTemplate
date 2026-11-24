@@ -11,6 +11,8 @@ class UDvtSteeringGripComponent;
 class USkeletalMeshComponent;
 class ADvtCarBody;
 class UPrimitiveComponent;
+class UVRCalAlignmentComponent;
+class UVRCalAlignPointComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDvtSelectionChanged, int32, CarIndex, int32, HoodIndex);
 
@@ -20,6 +22,16 @@ class DYNAMICVRTEMPLATE_API ADvtVehicle : public AWheeledVehiclePawn
     GENERATED_BODY()
 public:
     ADvtVehicle();
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Alignment")
+    TObjectPtr<UVRCalAlignmentComponent> Alignment;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Alignment")
+    TObjectPtr<UVRCalAlignPointComponent> AlignPoint1;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Alignment")
+    TObjectPtr<UVRCalAlignPointComponent> AlignPoint2;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Alignment")
+    TObjectPtr<UVRCalAlignPointComponent> AlignPoint3;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Alignment")
+    TObjectPtr<UVRCalAlignPointComponent> AlignPoint4;
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     void ApplySteering(float Value);

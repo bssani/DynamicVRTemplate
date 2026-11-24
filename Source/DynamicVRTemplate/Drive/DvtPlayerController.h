@@ -8,6 +8,7 @@
 class ADvtVehicle;
 class UInputAction;
 class UInputMappingContext;
+class UVRCalAlignmentComponent;
 struct FInputActionValue;
 
 UCLASS()
@@ -23,6 +24,12 @@ public:
 
     UFUNCTION(BlueprintCallable, Category="Drive")
     void ResetVehicle();
+
+    UFUNCTION(BlueprintCallable, Category="Alignment")
+    void ReapplyAlignment();
+
+    UPROPERTY(EditDefaultsOnly, Category="Drive|Input")
+    TObjectPtr<UInputAction> ReapplyAlignmentAction;
 
     UPROPERTY(EditDefaultsOnly, Category="Drive|Input")
     TObjectPtr<UInputMappingContext> DriveMappingContext;
@@ -52,6 +59,8 @@ public:
 private:
     friend class FDvtInputs;
 #if WITH_DEV_AUTOMATION_TESTS
+    friend struct FDvtCalibrationTestAccess;
+    TFunction<bool(UVRCalAlignmentComponent*)> ReapplyForTest;
     void SetDriveVehicleForTest(ADvtVehicle* InVehicle) { Vehicle = InVehicle; }
 #endif
     void AttachVRPawn();

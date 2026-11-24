@@ -15,7 +15,7 @@
 | D-03 | **주행 입력 = 벅의 휠·가속·브레이크 페달, RawInput** | 벅 장치는 simracing 소프트웨어를 거쳐 엔진 `RawInput` 플러그인으로 읽는다(사용자 2026-11-24 Q-01). 장치 VID/PID·축 설정은 `Config/DefaultInput.ini`의 `[/Script/RawInput.RawInputSettings]`(AI_Driving `Config/DefaultInput.ini:1-2` 예시), 축 → 조향·가속·브레이크 연결은 Enhanced Input. **포스 피드백 없음.** 키보드 주행은 개발용 |
 | D-04 | **VR Pawn과 차량을 나눈다** | 플레이어는 카메라·손만 가진 VR Pawn을 possess한다. PlayerController가 휠·페달 입력을 차량의 `ChaosWheeledVehicleMovementComponent`로 넘긴다. 키트는 "Player 0 Pawn 루트를 차에 attach"하므로(키트 `VRCalAlignmentComponent.cpp:24`·`:123`) 차량을 possess하면 차 자체가 옮겨진다 — 그래서 나눈다. 키트는 고치지 않는다 |
 | D-05 | **휠 손 붙기 = AI_Driving 방식, 고정 포즈** | 손바닥이 휠 테두리에서 `GripEnterDistance` 안이면 휠에 붙은 고정 포즈 손(왼손 9시·오른손 3시 쪽, BP에서 배치)을 보이고, `GripReleaseDistance`보다 멀어지면 추적 손을 보인다(히스테리시스, AI_Driving 기본 10 / 18 cm). 추적이 끊기면 잡은 상태 유지. 붙는 손은 휠 밑에 붙어 휠과 같이 돈다. **붙는 범위(테두리·enter·release 링)는 에디터 뷰포트에서 보이고 Play 중에는 숨긴다.** 출처 `C:\Git\AI_Driving\Source\AI_Driving\VR\VRHandPresenceComponent.*`(런타임 DrawDebug만 있음 → 에디터 표시는 새로) |
-| D-06 | **헤드셋 안에 어떤 메시지도 없음** | 디버그·경고·안내 글 전부. 알림은 `UE_LOG`. 진행자 창·관전 화면은 PC에만 |
+| D-06 | **헤드셋 안에 어떤 메시지도 없음** | 디버그·경고·안내 글 전부. 알림은 `UE_LOG`. 진행자 창·관전 화면은 PC에만. 예외: 정렬 레벨에서 키트 정렬 도구가 G~H 사이에 보이는 정렬점 번호 1–4(설치 담당자용, 사용자 2026-11-24, [S4](Specs/S4-calibration.md) D6) |
 | D-07 | **관전(spectator) 화면** | PC 모니터에 참가자 시야 + 지금 **차 이름**과 **hood 변형 이름**만(사용자 2026-11-24 Q-05). 경로는 AI_Driving·vBoR P5h/P5k 방식(Slate → 렌더 타깃 → `ISpectatorScreenController` `TexturePlusEye`, 뷰포트에 올리지 않음 — 올리면 헤드셋에만 간다, AI_Driving `README.md`). 배치는 vBoR P5k(시야 4:3 왼쪽, 오른쪽 칸) |
 | D-08 | **진행자(operator) 창** | vBoR P5i 방식의 따로 뜨는 OS 창(`SWindow`) + 에디터 툴바 버튼(P5j). 버튼 = 키보드와 같은 명령. 내용은 §5 |
 | D-09 | **이 리포 = 기능만, 맵은 회사 PC에서** | 사용자가 이 프로젝트를 회사 PC로 옮겨 회사 평지 도로 맵과 CAD를 붙인다(사용자 2026-11-24 Q-02). 리포에는 기능 시험용 단순 평지 맵과 샘플 차만 둔다(샘플 차 에셋은 Epic Vehicle 템플릿, 리포에 올림 — 사용자 2026-11-24, [S1](Specs/S1-drive-rig.md) D11). 회사 쪽 에셋은 `Content/CAD/`·`Content/Local/`(git 밖) |
@@ -52,7 +52,7 @@
 ## 5. 진행자 창 내용 (Q-03)
 
 - **차**: 지금 차 이름 `(k/N)`, 이전·다음, 목록에서 고르기
-- **Hood**: 지금 hood 이름 `(k/N)`, 이전·다음
+- **Hood**: 지금 hood 이름 `(k/N)`, 이전·다음, 목록에서 고르기(Q-06 번호 직접 선택)
 - **정렬**: 상태(`Applied` / `NeedsCheck` / `NoSavedValue`)와 이유, 앵커 찾는 중 표시, `Reapply alignment` 버튼(키트 `RequestReapply`)
 - **차량**: `Reset vehicle` 버튼(D-13, 가까운 reset point로 페이드 이동)
 - **손**: 왼손·오른손 추적 여부, 휠 잡음/놓음
@@ -67,8 +67,8 @@
 | **S2** | 휠 손 붙기 — [명세](Specs/S2-steering-grip.md) | D-05 컴포넌트, 에디터 표시·게임 숨김, 고정 포즈 손 | 자동화 시험: 진입·이탈 히스테리시스, 추적 끊김 유지, 게임에서 숨김. Quest (T-02) |
 | **S3** | 차·hood 교체 — [명세](Specs/S3-car-hood-switch.md) | §4 차 세트·명령·키, 쿨다운 | 자동화 시험: 교체 뒤 보이는 세트가 하나, 주행 중 교체에 물리 영향 없음, 동시 입력 (T-03) |
 | **S4** | 정렬 가져오기 — [명세](Specs/S4-calibration.md) | VRCalibrationKit(`main@e915647`, 플러그인은 `864946c`와 같음)을 넣고 차량에 정렬점, 정렬 레벨 | 키트 시험 통과. Quest: 정렬 → 재시작 복원, 차 교체 뒤 같은 자리 (T-04) |
-| **S5** | 관전 화면 | D-07 | 헤드셋에는 안 보이고 모니터에만 (T-05) |
-| **S6** | 진행자 창 | D-08, §5, 툴바 버튼 | 버튼 = 키 같은 명령 시험 (T-06) |
+| **S5** | 관전 화면 — [명세](Specs/S5-spectator-screen.md) | D-07 | 헤드셋에는 안 보이고 모니터에만 (T-05) |
+| **S6** | 진행자 창 — [명세](Specs/S6-operator-window.md) | D-08, §5, 툴바 버튼 | 버튼 = 키 같은 명령 시험, 창을 눌러도 운전 입력이 끊기지 않음 (T-06) |
 | **S7** | 회사 환경 통합 | CAD 차체·hood(`Content/CAD/`), 회사 맵(`Content/Local/`), 실제 차 세트 | Quest 전체 흐름 (T-07) |
 
 순서: S1 → S2 → S3 → S4 → S5 → S6 → S7. S3은 S2 뒤(차마다 휠 반지름·손 자리를 S2 컴포넌트에 넣는다). S4는 VRCalibrationKit `main@e915647`(PR #2 머지, 기기 시험 끝, 2026-11-24)를 가져온다.
@@ -82,7 +82,7 @@
 | T-03 | 주행 중 차·hood 교체(키보드·진행자 창). 차가 튀거나 멈추지 않음 |
 | T-04 | 정렬 저장 → 에디터·Link 재시작 → 같은 자리. 차 교체 뒤에도 같은 자리. 앵커 켬/끔 |
 | T-05 | 모니터에 시야 + 차·hood 이름, 헤드셋에는 글 없음 |
-| T-06 | 진행자 창 모든 버튼, 정렬 상태 표시 |
+| T-06 | 진행자 창 모든 버튼, 정렬 상태 표시. 페달·휠로 운전하는 중에 버튼을 눌러도 운전이 끊기지 않음 |
 | T-07 | 회사 맵·CAD로 전체 흐름 |
 
 ## 8. 위험
@@ -102,3 +102,6 @@
 - 2026-11-24 — S3 D6 바꿈(사용자): 차를 바꿔도 hood 번호 유지. 새 차에 그 번호가 없으면 마지막 번호, 고른 번호(`RequestedHoodIndex`)는 기억.
 - 2026-11-24 — S1 리뷰 1회차 통과(`Docs/Reviews/S1-drive-rig.md`). S4 명세 작성: 키트 `864946c` 복사(고치지 않음), 정렬점은 차량에(SgRP 같음), attach는 키트 우선·없으면 `DriverOrigin`, 다시 적용 `F9`, 정렬 레벨은 주행 없는 GameMode. S2 D7 손 연결을 attach와 분리.
 - 2026-11-24 — 키트 기기 시험 결과 반영(S4 §0·§8): 키트 기준 `e915647`(플러그인은 `864946c`와 같음), 다시 보정 규칙(가디언 다시 그림·벅 옮김 → M → S), 복원 판정(Link 재연결 뒤 `L_Calibrate`에서 M만 → |dX|·|dY| 2 cm 안), 차량 루트 scale = 1 확인(E10 — 키트는 틀려도 조용함).
+- 2026-11-24 — S5·S6 명세 작성(사용자 요청, 미리). S5: vBoR P5h/P5k 경로·배치(시야 4:3 + 오른쪽 칸, `bDrawEyeFirst` 거짓), 칸은 차·hood 이름만, 차가 있는 주행 레벨에서만. S6: vBoR P5i/P5j 창·툴바, **창이 초점을 가져가지 않음**(벅 RawInput이 Slate 초점을 따라가 운전이 끊길 수 있음), 판정 함수를 명령과 공용, hood도 목록 선택. S1 R1-2 FBX 원본 삭제(사용자). S4 Q4-1 답: `L_Calibrate`에 차량은 두고 `Cars`는 비움.
+- 2026-11-24 — S4 Q4-2(사용자): 정렬 레벨에서 키트가 G~H 사이에 보이는 정렬점 번호 1–4는 D-06 예외(설치 담당자용, 키트 수정 없음). AGENTS.md에도 적음.
+- 2026-11-24 — S4 Q4-3(Codex): 저장값 없는 PIE에서는 키트가 로그·Pawn 검사를 하지 않음(조기 반환) → §5를 MCP 상태 읽기로, Pawn 조건은 새 시험 E11.

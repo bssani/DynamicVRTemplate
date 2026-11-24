@@ -2,6 +2,8 @@
 #include "Drive/DvtResetPoint.h"
 #include "Drive/DvtVehicle.h"
 #include "Drive/DvtVRPawn.h"
+#include "Calibration/DvtCalibrationLogic.h"
+#include "VRCalAlignmentComponent.h"
 #include "Grip/DvtSteeringGripComponent.h"
 #include "ChaosVehicleMovementComponent.h"
 #include "Camera/PlayerCameraManager.h"
@@ -62,9 +64,9 @@ void ADvtPlayerController::ConnectTrackedHands()
 
 void ADvtPlayerController::AttachVRPawn()
 {
-    if (IsValid(Vehicle) && GetPawn())
+    if (IsValid(Vehicle) && GetPawn() && DvtCalibration::ShouldAttachToDriver(GetPawn()->GetAttachParentActor(), Vehicle))
     {
-        // Temporary Stage attachment until VRCalibrationKit owns it (S1 D4).
+        // Preserve the kit's relative transform in either startup order (S4 D3).
         GetPawn()->AttachToComponent(Vehicle->DriverOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
     }
 }
@@ -90,6 +92,7 @@ void ADvtPlayerController::SetupInputComponent()
             Inputs->BindAction(BrakeAction, ETriggerEvent::Completed, this, &ADvtPlayerController::BrakeCompleted);
         }
         if (ResetAction) { Inputs->BindAction(ResetAction, ETriggerEvent::Started, this, &ADvtPlayerController::ResetVehicle); }
+        if (ReapplyAlignmentAction) { Inputs->BindAction(ReapplyAlignmentAction, ETriggerEvent::Started, this, &ADvtPlayerController::ReapplyAlignment); }
         if (PreviousCarAction) { Inputs->BindAction(PreviousCarAction, ETriggerEvent::Started, this, &ADvtPlayerController::PreviousCar); }
         if (NextCarAction) { Inputs->BindAction(NextCarAction, ETriggerEvent::Started, this, &ADvtPlayerController::NextCar); }
         if (PreviousHoodAction) { Inputs->BindAction(PreviousHoodAction, ETriggerEvent::Started, this, &ADvtPlayerController::PreviousHood); }
@@ -100,6 +103,21 @@ void ADvtPlayerController::SetupInputComponent()
 void ADvtPlayerController::Steer(const FInputActionValue& Value)
 {
     if (IsValid(Vehicle)) { Vehicle->ApplySteering(DvtDrive::Steering(Value.Get<float>())); }
+}
+
+void ADvtPlayerController::ReapplyAlignment()
+{
+    if (!IsValid(Vehicle) || !IsValid(Vehicle->Alignment)) { return; }
+    bool bRequested;
+#if WITH_DEV_AUTOMATION_TESTS
+    if (ReapplyForTest) { bRequested = ReapplyForTest(Vehicle->Alignment); }
+    else
+#endif
+    { bRequested = Vehicle->Alignment->RequestReapply(); }
+    if (!bRequested)
+    {
+        UE_LOG(LogDvtDrive, Log, TEXT("Alignment reapply deferred while finding an anchor."));
+    }
 }
 
 void ADvtPlayerController::Throttle(const FInputActionValue& Value)
