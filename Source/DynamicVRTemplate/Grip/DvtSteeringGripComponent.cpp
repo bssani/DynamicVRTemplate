@@ -89,9 +89,11 @@ void UDvtSteeringGripComponent::ApplyHandSample(EControllerHand Hand, bool Track
     if (Next != Current)
     {
         Current = Next;
-        UE_LOG(LogDvtGrip, Log, TEXT("%s hand %s (palm %.1f cm from rim)."),
+        const FString Detail = !TrackerValid ? TEXT("hand tracking unavailable") : !Tracked ? TEXT("hand not tracked")
+            : FString::Printf(TEXT("palm %.1f cm from rim"), DistanceCm);
+        UE_LOG(LogDvtGrip, Log, TEXT("%s hand %s (%s)."),
             Hand == EControllerHand::Left ? TEXT("Left") : TEXT("Right"),
-            Current == EDvtHandGrip::Gripped ? TEXT("gripped") : TEXT("released"), DistanceCm);
+            Current == EDvtHandGrip::Gripped ? TEXT("gripped") : TEXT("released"), *Detail);
         OnGripChanged.Broadcast(Hand, Current);
     }
     ApplyVisuals(Hand, Tracked);

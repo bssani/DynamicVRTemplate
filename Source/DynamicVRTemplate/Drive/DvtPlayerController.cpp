@@ -90,6 +90,10 @@ void ADvtPlayerController::SetupInputComponent()
             Inputs->BindAction(BrakeAction, ETriggerEvent::Completed, this, &ADvtPlayerController::BrakeCompleted);
         }
         if (ResetAction) { Inputs->BindAction(ResetAction, ETriggerEvent::Started, this, &ADvtPlayerController::ResetVehicle); }
+        if (PreviousCarAction) { Inputs->BindAction(PreviousCarAction, ETriggerEvent::Started, this, &ADvtPlayerController::PreviousCar); }
+        if (NextCarAction) { Inputs->BindAction(NextCarAction, ETriggerEvent::Started, this, &ADvtPlayerController::NextCar); }
+        if (PreviousHoodAction) { Inputs->BindAction(PreviousHoodAction, ETriggerEvent::Started, this, &ADvtPlayerController::PreviousHood); }
+        if (NextHoodAction) { Inputs->BindAction(NextHoodAction, ETriggerEvent::Started, this, &ADvtPlayerController::NextHood); }
     }
 }
 
@@ -111,6 +115,11 @@ void ADvtPlayerController::Brake(const FInputActionValue& Value)
 void ADvtPlayerController::SteerCompleted(const FInputActionValue&) { Steer(FInputActionValue(0.f)); }
 void ADvtPlayerController::ThrottleCompleted(const FInputActionValue&) { Throttle(FInputActionValue(0.f)); }
 void ADvtPlayerController::BrakeCompleted(const FInputActionValue&) { Brake(FInputActionValue(0.f)); }
+
+void ADvtPlayerController::PreviousCar() { if (IsValid(Vehicle)) { Vehicle->PreviousCar(); } }
+void ADvtPlayerController::NextCar() { if (IsValid(Vehicle)) { Vehicle->NextCar(); } }
+void ADvtPlayerController::PreviousHood() { if (IsValid(Vehicle)) { Vehicle->PreviousHood(); } }
+void ADvtPlayerController::NextHood() { if (IsValid(Vehicle)) { Vehicle->NextHood(); } }
 
 void ADvtPlayerController::ResetVehicle()
 {
