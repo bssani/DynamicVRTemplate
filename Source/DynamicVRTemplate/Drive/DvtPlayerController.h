@@ -34,6 +34,14 @@ public:
     TObjectPtr<UInputAction> BrakeAction;
     UPROPERTY(EditDefaultsOnly, Category="Drive|Input")
     TObjectPtr<UInputAction> ResetAction;
+    UPROPERTY(EditDefaultsOnly, Category="Drive|Input")
+    TObjectPtr<UInputAction> PreviousCarAction;
+    UPROPERTY(EditDefaultsOnly, Category="Drive|Input")
+    TObjectPtr<UInputAction> NextCarAction;
+    UPROPERTY(EditDefaultsOnly, Category="Drive|Input")
+    TObjectPtr<UInputAction> PreviousHoodAction;
+    UPROPERTY(EditDefaultsOnly, Category="Drive|Input")
+    TObjectPtr<UInputAction> NextHoodAction;
     UPROPERTY(EditAnywhere, Category="Drive|Reset", meta=(Units="cm", ClampMin="0"))
     float ResetLiftCm = 20;
     UPROPERTY(EditAnywhere, Category="Drive|Reset", meta=(Units="s", ClampMin="0"))
@@ -55,6 +63,10 @@ private:
     void ThrottleCompleted(const FInputActionValue& Value);
     void BrakeCompleted(const FInputActionValue& Value);
     void AdvanceReset(float DeltaSeconds);
+    void PreviousCar();
+    void NextCar();
+    void PreviousHood();
+    void NextHood();
 
     UPROPERTY(Transient)
     TObjectPtr<ADvtVehicle> Vehicle;
