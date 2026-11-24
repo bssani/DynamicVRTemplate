@@ -31,3 +31,21 @@
 - **문제:** 명세 §5는 헤드셋 없는 `L_DriveTest` PIE에서 `Alignment … No saved value` 로그를 보고 Pawn·루트·WorldToMeters 검사 통과를 확인하도록 하고, §7은 그 로그 줄을 보고하도록 한다. 그러나 지정 커밋 `e915647`의 `VRCalAlignmentComponent.cpp:90-92`는 `State = NoSavedValue`를 설정한 뒤 `!Value`이면 즉시 반환한다. Pawn·루트·WorldToMeters 검사는 `:93-95`, 로그는 `:135`라서 이 경로에서는 실행되지 않는다. `LoadSetupAlignment`도 이후 Reason만 채운다(`:73-76`). `Describe()`에 상태 문자열이 있는 것과 그 문자열을 로그에 출력하는 것은 다르다.
 - **질문:** 키트 수정 없이, §5·§7을 **MCP로 `State = NoSavedValue`와 `Reason`을 읽고 Pawn의 `DriverOrigin` attach를 확인하며, Pawn·루트·WorldToMeters 조건은 별도로 직접 확인**하는 것으로 바꿔도 되는가? 이것을 권장한다. 로그 자체가 필수라면 프로젝트 쪽에서 어느 시점에 출력할지 명세에 정해 달라. 키트의 조기 반환 때문에 저장값 없는 상태만으로 초기화 검사 통과를 주장할 수는 없다.
 - **현재 상태:** `codex/S4-calibration@a0aad1f`. Q4-1·Q4-2 답변을 읽고 키트를 `git archive e915647 Plugins/VRCalibrationKit`로 복사했다(미추적·미커밋, 키트 파일 수정 없음). 제품 C++·설정·에셋 변경, 빌드·자동화·에디터 MCP는 아직 하지 않았다. `Config/UserEngine.ini` 없음, Unreal Editor 프로세스 없음. T-04 `not-tested`. AGENTS.md의 명세와 플러그인 불일치 시 중지 규칙에 따라 답을 기다린다.
+
+## 리뷰 1회차 — 통과 (Claude, 2026-11-24, `9424dde`)
+
+고칠 것 없음. 머지 가능(사용자 승인 뒤).
+
+- **키트 그대로(D1):** `9424dde:Plugins/VRCalibrationKit` 트리 해시 = 키트 `e915647:Plugins/VRCalibrationKit` 트리 해시(`9730d67`). 파일 하나도 다르지 않다.
+- **차량(D2):** `Alignment` 1개, `AlignPoint1`–`4`(`Order` 1–4)가 차량 루트 밑. 키트는 점을 `GetOwner()->GetComponents`로 모으므로(`VRCalAlignmentComponent.cpp:140`) 루트 밑이어도 맞다. 차체 BP에는 없다.
+- **attach(D3):** `ShouldAttachToDriver` = 부모 Actor ≠ 차량. `BeginPlay`·`OnPossess` 둘 다 이 판정을 거치고, 손 연결(`ConnectTrackedHands`)은 판정과 무관하게 그대로 불린다. E5·E6이 두 순서와 "나중에 키트가 덮어씀 → 다시 controller → 그대로"까지 본다.
+- **F9(D4):** `Started` 바인딩, 차량 정렬 `RequestReapply`, false면 로그 한 줄. `IMC_Drive` 기존 12개 유지 + F9(`Saved/S4-input-evidence.json`).
+- **정렬 레벨(D5):** GameMode PC = 엔진 `APlayerController`, `Cars` 0, calibrator 1, 차체 Actor 없음(`S4-calibrate-pie.json`, 재로드 `S4-reloaded-calibrate.json`).
+- **설정(D7):** 두 줄만 추가, `VRCal.AnchorAlignment` 줄 없음. `Saved/`·`Config/User*.ini`는 `.gitignore`에 걸림.
+- **샘플 점(D8):** 40 × 40 cm, `DriverOrigin`(15,−38,0) 둘레, scale (1,1,1) — BP·두 레벨 모두.
+- **§5 MCP 읽기:** `NoSavedValue`, Reason `No saved value — …`, 부모 `DriverOrigin`/`BP_SampleVehicle_C_0`, yaw false, `WorldToMeters` 100(`S4-drive-pie.json`).
+- **시험:** 로그에서 직접 셈 — `DynamicVRTemplate.*` 36, `VRCalibrationKit.*` 46, 실패 0. 빌드 6개 모두 `Succeeded`, `warning C`/`error C` 없음. 첫 충돌 로그(`S4-automation-first-crash.log`)를 통과로 세지 않은 것도 맞다.
+- **README:** 앵커 cvar 절(`[ConsoleVariables]`)이 키트 Integration-Guide와 같다. 다시 보정 표·복원 판정·scale 경고·번호 예외가 명세 §7과 맞다.
+- **참고(고치지 않아도 됨):** E7은 시험 콜백으로 키트 호출을 가로채므로 실제 `RequestReapply` 경로는 기기(T-04)에서 본다 — 명세가 허용한 방식이다.
+
+T-04는 `not-tested`(Quest 3 + 벅, 사용자).
