@@ -93,6 +93,9 @@ Content/CAD/
 *.step
 *.udatasmith
 
+# Import sources (FBX etc.) are not read by the engine; keep only .uasset (S1 review R1-2).
+*.[Ff][Bb][Xx]
+
 # Claude (spec/review) <-> Codex app (implementation) handoff. Volatile; durable records are Docs/Specs, Docs/Reviews.
 /HANDOFF.md
 
