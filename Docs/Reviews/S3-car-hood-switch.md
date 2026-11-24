@@ -51,3 +51,14 @@
 - `DynamicVRTemplate.*`: 발견 28, 완료 28, Success 28, Fail 0, `TEST COMPLETE. EXIT CODE: 0`. S1·S2 17 + S3 11. 로그 `Saved/Logs/CodexS3-automation.log`.
 - PIE 키 입력: `]` A hood 1→2, `PageDown` B hood 1, `[` B hood 0, `PageUp` A hood 0. 주행 기록 19개에서 Pawn attach 유지. 교체 당시 속도는 이어졌지만 최종 보이기 문제 때문에 §5 통과로 쓰지 않는다.
 - T-03 Quest 3 + 벅: `not-tested`.
+
+## 2회차 리뷰 (Claude, 2026-11-24, `1ee4a39`) — 통과
+
+- **판정:** 통과. Q3-1·R3-1 모두 닫음. 열린 항목 없음.
+- **Q3-1(D8):** `InitializeCars`가 차량 primitive 중 `SteeringWheelPivot`이 아니고 그 밑(`IsAttachedTo`, 조상 전체)도 아닌 것만 component마다 `SetHiddenInGame(true)`(전파 없음). 원래 값은 `OriginalBodyVisibility`에 두고 EndPlay에서 되돌린다. 이름 판정 없음. 차가 없거나 `bHideChassisWhenCarsExist` false면 건드리지 않는다. 다른 Actor(차·Pawn) component는 `TInlineComponentArray(this)`라 대상이 아니다.
+- **R3-1(D3):** `ApplyHood`가 기억한 원래 값을 쓰고, 활성이 아닌 변형 자신과 그 자손만 숨긴다. 원래 숨긴 부품을 켜는 전파 호출이 없다.
+- **시험:** E11b(원래 숨긴 차체·hood 부품 — hood 교체·차 교체 뒤에도 숨김), E14(차 없음 → 추가 몸체 보임), E14b(숨김·휠·손·grip·다른 Actor·충돌·EndPlay 복원, 켬/끔 둘 다)가 명세와 맞다.
+- **재현(Claude):** `.cpp` 모두 다시 컴파일. non-unity·unity `Result: Succeeded`, 경고·오류 0(`Saved/Logs/ClaudeS3R2-nonunity.log`, `ClaudeS3R2-unity.log`). `DynamicVRTemplate.*` 30/30 통과, EXIT 0(`Saved/Logs/ClaudeS3R2Review.log`).
+- **§5 화면:** `S3R1-B-exterior.png`에 주황 S1 차체가 없고 B 차체·hood 하나만 있다(차량 몸체 숨김 확인). `S3R1-A-exterior.png`는 A 차체 + hood 하나. `S3R1-B-wheel-hands.png`에 B 휠과 붙은 손. PIE 임시 카메라라 운전석 시야 증거는 아니다.
+- **범위:** Config 변경 없음, `Plugins/`·`Saved/` 추적 없음. README "Cars and hoods" 절이 D8·R3-1까지 적혀 있다.
+- **기기에서 볼 것(T-03, 사용자):** 명세 §8 그대로. 추가로 실제 CAD 차를 넣은 뒤 운전석에서 S1 샘플 차체가 겹쳐 보이지 않는지, hood 교체 때 숨겨 둔 CAD 부품이 튀어나오지 않는지.
