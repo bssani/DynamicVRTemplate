@@ -10,6 +10,7 @@ class UStaticMeshComponent;
 class UDvtSteeringGripComponent;
 class USkeletalMeshComponent;
 class ADvtCarBody;
+class UPrimitiveComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDvtSelectionChanged, int32, CarIndex, int32, HoodIndex);
 
@@ -87,7 +88,12 @@ private:
     double ReadSwitchTimeSeconds() const;
     ADvtCarBody* GetSelectedCar() const;
     DvtSelection::FSelection Selection;
-    bool bOriginalChassisHidden = false;
+    struct FBodyVisibility
+    {
+        TWeakObjectPtr<UPrimitiveComponent> Component;
+        bool bHiddenInGame;
+    };
+    TArray<FBodyVisibility> OriginalBodyVisibility;
     FTransform StartTransform;
     FQuat InitialWheelRotation = FQuat::Identity;
 };

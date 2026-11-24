@@ -4,6 +4,7 @@
 #include "Grip/DvtSteeringGripComponent.h"
 #include "ChaosVehicleMovementComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
@@ -58,11 +59,20 @@ void ADvtVehicle::InitializeCars()
         Counts.Add(Car->GetHoodCount());
     }
     Selection.Initialize(Counts, InitialCar);
-    bOriginalChassisHidden = GetMesh()->bHiddenInGame;
     if (Cars.IsEmpty()) { UE_LOG(LogDvtSelection, Warning, TEXT("No cars configured; keeping the sample chassis.")); }
     else
     {
-        if (bHideChassisWhenCarsExist) { GetMesh()->SetHiddenInGame(true); }
+        if (bHideChassisWhenCarsExist)
+        {
+            TInlineComponentArray<UPrimitiveComponent*> Components(this);
+            for (UPrimitiveComponent* Component : Components)
+            {
+                if (Component == SteeringWheelPivot || Component->IsAttachedTo(SteeringWheelPivot)) { continue; }
+                OriginalBodyVisibility.Add({Component, bool(Component->bHiddenInGame)});
+                // Keep the wheel and hands independent of the shared chassis (S3 D8).
+                Component->SetHiddenInGame(true);
+            }
+        }
         ApplySelection(true, false);
     }
 }
@@ -70,7 +80,11 @@ void ADvtVehicle::InitializeCars()
 void ADvtVehicle::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     for (ADvtCarBody* Car : Cars) { if (IsValid(Car)) { Car->RestoreVisibility(); } }
-    GetMesh()->SetHiddenInGame(bOriginalChassisHidden);
+    for (const FBodyVisibility& Saved : OriginalBodyVisibility)
+    {
+        if (Saved.Component.IsValid()) { Saved.Component->SetHiddenInGame(Saved.bHiddenInGame); }
+    }
+    OriginalBodyVisibility.Reset();
     Super::EndPlay(EndPlayReason);
 }
 

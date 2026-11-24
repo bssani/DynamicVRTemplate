@@ -154,7 +154,7 @@ namespace
             }
             Vehicle->Cars = {A, B};
         }
-        UStaticMeshComponent* AddMesh(ADvtCarBody* Car, USceneComponent* Parent)
+        UStaticMeshComponent* AddMesh(AActor* Car, USceneComponent* Parent)
         {
             auto* Mesh = NewObject<UStaticMeshComponent>(Car);
             Car->AddInstanceComponent(Mesh);
@@ -207,6 +207,32 @@ bool FDvtCarVisibility::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDvtCarAuthoredVisibility, "DynamicVRTemplate.S3.E11b.AuthoredVisibility", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FDvtCarAuthoredVisibility::RunTest(const FString&)
+{
+    FCarWorld F;
+    auto* HiddenBody = F.AddMesh(F.A, F.A->GetRootComponent());
+    auto* HiddenHood = F.AddMesh(F.A, F.Hoods[1]->GetAttachParent());
+    HiddenBody->SetVisibility(false);
+    HiddenHood->SetVisibility(false);
+    F.BeginPlay();
+    TestFalse(TEXT("Authored body hidden at startup"), HiddenBody->GetVisibleFlag());
+    TestFalse(TEXT("Authored hood child hidden at startup"), HiddenHood->GetVisibleFlag());
+    TestTrue(TEXT("Other active hood child visible"), F.Hoods[1]->GetVisibleFlag());
+    F.Vehicle->SelectHood(1);
+    TestFalse(TEXT("Inactive hood child hidden"), F.Hoods[1]->GetVisibleFlag());
+    TestFalse(TEXT("Authored body stays hidden on switch"), HiddenBody->GetVisibleFlag());
+    F.Vehicle->SelectHood(0);
+    TestFalse(TEXT("Authored hood child stays hidden on return"), HiddenHood->GetVisibleFlag());
+    TestFalse(TEXT("Authored body stays hidden on return"), HiddenBody->GetVisibleFlag());
+    TestTrue(TEXT("Other active hood child restored"), F.Hoods[1]->GetVisibleFlag());
+    F.Vehicle->SelectCar(1);
+    F.Vehicle->SelectCar(0);
+    TestFalse(TEXT("Authored body stays hidden on car return"), HiddenBody->GetVisibleFlag());
+    TestFalse(TEXT("Authored hood child stays hidden on car return"), HiddenHood->GetVisibleFlag());
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDvtCarWheel, "DynamicVRTemplate.S3.E13.WheelAndHands", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 bool FDvtCarWheel::RunTest(const FString&)
 {
@@ -254,13 +280,47 @@ bool FDvtCarEmpty::RunTest(const FString&)
 {
     FCarWorld F;
     F.Vehicle->Cars.Reset();
+    auto* ExtraBody = F.AddMesh(F.Vehicle, F.Vehicle->GetMesh());
     F.BeginPlay();
     F.Vehicle->NextCar(); F.Vehicle->PreviousCar(); F.Vehicle->SelectCar(0);
     F.Vehicle->NextHood(); F.Vehicle->PreviousHood(); F.Vehicle->SelectHood(0);
     TestEqual(TEXT("No car selected"), F.Vehicle->GetCarIndex(), -1);
     TestEqual(TEXT("No cars"), F.Vehicle->GetCarCount(), 0);
     TestTrue(TEXT("Chassis visible without cars"), !F.Vehicle->GetMesh()->bHiddenInGame);
+    TestFalse(TEXT("Additional body not hidden without cars"), ExtraBody->bHiddenInGame);
+    TestTrue(TEXT("Additional body visible without cars"), ExtraBody->GetVisibleFlag());
     TestTrue(TEXT("Empty name"), F.Vehicle->GetCarName().IsEmpty());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDvtVehicleBodyVisibility, "DynamicVRTemplate.S3.E14b.VehicleBodyVisibility", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FDvtVehicleBodyVisibility::RunTest(const FString&)
+{
+    for (bool HideBody : {true, false})
+    {
+        FCarWorld F;
+        F.Vehicle->bHideChassisWhenCarsExist = HideBody;
+        auto* VisibleBody = F.AddMesh(F.Vehicle, F.Vehicle->GetMesh());
+        auto* HiddenBody = F.AddMesh(F.Vehicle, F.Vehicle->GetMesh());
+        HiddenBody->SetHiddenInGame(true);
+        const auto ChassisCollision = F.Vehicle->GetMesh()->GetCollisionEnabled();
+        const auto BodyCollision = VisibleBody->GetCollisionEnabled();
+        F.BeginPlay();
+        TestEqual(TEXT("Chassis hidden only when enabled"), bool(F.Vehicle->GetMesh()->bHiddenInGame), HideBody);
+        TestEqual(TEXT("Additional body hidden only when enabled"), bool(VisibleBody->bHiddenInGame), HideBody);
+        TestTrue(TEXT("Authored hidden body stays hidden"), HiddenBody->bHiddenInGame);
+        TestFalse(TEXT("Wheel not hidden"), F.Vehicle->SteeringWheelMesh->bHiddenInGame);
+        TestFalse(TEXT("Left hand not hidden"), F.Vehicle->LeftGripHand->bHiddenInGame);
+        TestFalse(TEXT("Right hand not hidden"), F.Vehicle->RightGripHand->bHiddenInGame);
+        TestTrue(TEXT("Grip keeps its own game hidden flag"), F.Vehicle->SteeringGrip->bHiddenInGame);
+        TestFalse(TEXT("Other actor primitive not hidden"), F.Body->bHiddenInGame);
+        TestTrue(TEXT("Chassis collision unchanged"), F.Vehicle->GetMesh()->GetCollisionEnabled() == ChassisCollision);
+        TestTrue(TEXT("Body collision unchanged"), VisibleBody->GetCollisionEnabled() == BodyCollision);
+        F.Vehicle->RouteEndPlay(EEndPlayReason::EndPlayInEditor);
+        TestFalse(TEXT("Chassis original hidden flag restored"), F.Vehicle->GetMesh()->bHiddenInGame);
+        TestFalse(TEXT("Visible body original hidden flag restored"), VisibleBody->bHiddenInGame);
+        TestTrue(TEXT("Hidden body original hidden flag restored"), HiddenBody->bHiddenInGame);
+    }
     return true;
 }
 

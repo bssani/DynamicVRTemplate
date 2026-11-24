@@ -3,7 +3,7 @@
 Seated VR driving on a physical seating buck (Unreal Engine 5.7.4, Meta Quest 3 over Link, hand tracking, Chaos Vehicles).
 The driver sits in a physical buck with a steering wheel and pedals and drives a virtual car. Car body designs and hood variants can be switched at runtime. A spectator view goes to the PC monitor and an operator window controls the session; nothing is shown as text inside the headset.
 
-Status: S3 implementation in progress; migrating the sample vehicle's existing static visuals awaits specification clarification. Device testing remains not-tested. See [Docs/Plan.md](Docs/Plan.md) (Korean).
+Status: S3 cars and hoods. Device testing remains not-tested. See [Docs/Plan.md](Docs/Plan.md) (Korean).
 
 ## Setup
 
@@ -28,9 +28,9 @@ The sample SportsCar and PhysicsMaterials assets under `Content/Vehicles/` come 
 
 ## Cars and hoods
 
-Create a Blueprint with `ADvtCarBody` as its parent. Add body meshes under its root and set `DisplayName`. Place each car in the driving level and attach it to the sample vehicle with zero relative location and rotation, and unit scale: car origin equals vehicle origin. Assign these level instances to the vehicle's `Cars` array in the desired selection order. All cars share the existing chassis physics and driver origin; car primitives have collision disabled at BeginPlay. The chassis is hidden when cars exist unless `bHideChassisWhenCarsExist` is disabled.
+Create a Blueprint with `ADvtCarBody` as its parent. Add body meshes under its root and set `DisplayName`. Place each car in the driving level and attach it to the sample vehicle with zero relative location and rotation, and unit scale: car origin equals vehicle origin. Assign these level instances to the vehicle's `Cars` array in the desired selection order. All cars share the existing chassis physics and driver origin; car primitives have collision disabled at BeginPlay. When cars exist, the vehicle's own primitives outside `SteeringWheelPivot` are hidden unless `bHideChassisWhenCarsExist` is disabled. This includes its original static body meshes, which stay available when no cars are configured. Original game-hidden flags are restored at EndPlay.
 
-For each hood option, add a `DvtHoodVariantComponent` and attach its meshes beneath it. Set its `DisplayName` and `SortOrder`. Hood indices follow ascending `SortOrder`, then case-sensitive component name for ties. A car may have no hood variants. The sample cars have three and two hood options.
+For each hood option, add a `DvtHoodVariantComponent` and attach its meshes beneath it. Set its `DisplayName` and `SortOrder`. Hood indices follow ascending `SortOrder`, then case-sensitive component name for ties. A car may have no hood variants. The sample cars have three and two hood options. Parts that were authored with visibility disabled stay hidden when their car or hood is selected.
 
 Set each car's `SteeringWheelMesh`, `SteeringWheelMeshTransform`, `RimRadiusCm`, `LeftGripHandTransform`, and `RightGripHandTransform`. Wheel and hand transforms are relative to the vehicle's fixed `SteeringWheelPivot`; keep that pivot at the buck wheel position. If a CAD wheel mesh uses the car origin as its pivot, use `SteeringWheelMeshTransform` to offset it into the wheel pivot frame before it rotates. An empty wheel mesh hides the wheel. Enter and release distances remain shared settings on `SteeringGrip`.
 

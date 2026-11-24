@@ -29,11 +29,21 @@ void ADvtCarBody::PrepareForSelection()
 
 void ADvtCarBody::ApplyHood(int32 Index)
 {
-    TInlineComponentArray<USceneComponent*> Components(this);
-    for (USceneComponent* Component : Components) { Component->SetVisibility(true); }
-    for (int32 I = 0; I < Hoods.Num(); ++I)
+    for (const FVisibility& Saved : OriginalVisibility)
     {
-        if (IsValid(Hoods[I])) { Hoods[I]->SetVisibility(I == Index, true); }
+        USceneComponent* Component = Saved.Component.Get();
+        if (!Component) { continue; }
+        bool bVisible = Saved.bVisible;
+        for (int32 I = 0; I < Hoods.Num(); ++I)
+        {
+            if (IsValid(Hoods[I]) && I != Index && (Component == Hoods[I] || Component->IsAttachedTo(Hoods[I])))
+            {
+                bVisible = false;
+                break;
+            }
+        }
+        // Preserve intentionally hidden CAD parts when their variant is active (S3 D3).
+        Component->SetVisibility(bVisible);
     }
 }
 
