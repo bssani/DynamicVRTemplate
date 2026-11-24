@@ -8,7 +8,7 @@
 | 작업 브랜치 | `codex/S6-operator-window` |
 | 리뷰 파일 | `Docs/Reviews/S6-operator-window.md` |
 | 에디터 작업 | 없음(C++ Slate, 에디터 모듈, SVG 아이콘 하나) |
-| 상태 | 명세 — 구현 전(미리 씀, 2026-11-24). S4 머지 뒤 줄 번호 맞춤(2026-11-24). S5 머지 뒤 한 번 더 맞춘다 |
+| 상태 | 명세 — 구현 전(미리 씀, 2026-11-24). S4·S5 머지 뒤 줄 번호·S5 결과 맞춤(2026-11-24, `main@56f9d24`) |
 
 ## 0. 확인한 사실
 
@@ -22,7 +22,7 @@
 - **명령(S1·S3, 지금 코드):** 키 → `ADvtPlayerController`의 private 함수(`Drive/DvtPlayerController.cpp:94-99` 연결, `:137-140` 차·hood, `:142` `ResetVehicle`) → 차량 명령(`Drive/DvtVehicle.h:51-62`). 받을지 판정은 `DvtSelection::FSelection`(`Cars/DvtSelectionLogic.h` `SelectCar`·`SelectHood`·`StepCar`·`StepHood` — 범위 밖·같은 번호·1개 이하·쿨다운이면 false)과 `DvtDrive::FResetSequence::Request`(`Drive/DvtDriveLogic.h:37-44`, 진행 중이면 false) **안에 섞여 있다** — 창이 버튼을 흐리게 하려면 같은 판정을 따로 읽을 수 있어야 한다(D4).
 - **정렬(S4, 키트 `e915647`):** `UVRCalAlignmentComponent`의 `State`(`Applied`/`NoSavedValue`/`NeedsCheck`), `Reason`, `IsFindingAnchor()`, `RequestReapply()`(키트 `VRCalAlignmentComponent.cpp:194-199` — 앵커를 찾는 중이면 false, 아니면 저장값을 다시 읽고 true). S4가 만든 것: `F9` → `ADvtPlayerController::ReapplyAlignment()`(이미 public `UFUNCTION`, `Drive/DvtPlayerController.h:29`, `.cpp:108-121`) → 차량 `Alignment->RequestReapply()`, false면 로그 한 줄. 정렬 component는 모든 `ADvtVehicle`에 C++로 있다(`Drive/DvtVehicle.h:25-26`).
 - **손(S2):** `UDvtSteeringGripComponent::GetGrip(Hand)`(`Grip/DvtSteeringGripComponent.h:46`). **추적 여부를 읽는 함수는 없다** — Tick 안 지역 값이다(`DvtSteeringGripComponent.cpp:114-133`).
-- **팔레트(S5 D7):** S5가 공용 헤더(예: `UI/DvtUiStyle.h`)를 만든다.
+- **팔레트(S5 D7, 머지됨):** `Source/DynamicVRTemplate/UI/DvtUiStyle.h` — `DvtUiStyle::Color(TEXT("hex"))`(sRGB → 선형)와 상수 `Background`(`#131a26` — **칸·패널 색**, 창 바탕 `#0b0f17`이 아니다)·`Text`(`#eef2f7`)·`SecondaryText`(`#9aa6b8`)·`Line`(`#2e3a4e`)·`Accent`(`#5b8cff`). D9의 나머지 창용 색도 `Color()`로 만든다(같은 헤더에 더해도 된다 — S5 상수 값은 바꾸지 않는다). 모듈 `Slate`·`SlateCore`·`UMG`는 S5가 `DynamicVRTemplate.Build.cs` private 의존에 이미 넣었다.
 
 ## 1. 결정
 
@@ -136,3 +136,4 @@
 | 날짜 | 개정 | 내용 |
 |---|---|---|
 | 2026-11-24 | 처음 | 작성(사용자 요청 "명세서 미리 써놔"). vBoR P5i/P5j 방식. vBoR과 달리 창이 초점을 가져가지 않음(D2 — 벅 RawInput이 Slate 초점을 따라감, 엔진 근거 §0). 번호 직접 선택(Q-06), 판정 함수를 명령과 공용(D4), 손 추적 읽기 함수(D6), 툴바는 같은 명세에 |
+| 2026-11-24 | 1 | S4·S5 머지 뒤 맞춤: 프로젝트 줄 번호(S4), S4 `ReapplyAlignment` 실제 이름, S5 팔레트 헤더 실제 이름·상수(§0). 결정·시험은 바뀌지 않음 |
