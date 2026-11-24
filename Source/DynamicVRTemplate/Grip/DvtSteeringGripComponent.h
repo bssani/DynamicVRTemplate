@@ -44,12 +44,15 @@ public:
 
     UFUNCTION(BlueprintPure, Category="VR|Grip")
     EDvtHandGrip GetGrip(EControllerHand Hand) const;
+    bool IsHandTracked(EControllerHand Hand) const { return Hand == EControllerHand::Left ? bLeftTracked : bRightTracked; }
+    bool IsHandTrackingAvailable() const { return bTrackingAvailable; }
 
     void SetGripHands(USkeletalMeshComponent* Left, USkeletalMeshComponent* Right);
     void SetTrackedHands(UOculusXRHandComponent* Left, UOculusXRHandComponent* Right);
 
 private:
     friend class FDvtGripIndependentEvent;
+    friend struct FDvtOperatorTestAccess;
     void ApplyHandSample(EControllerHand Hand, bool TrackerValid, bool Tracked, float DistanceCm);
     void ApplyVisuals(EControllerHand Hand, bool Tracked);
 
@@ -63,4 +66,5 @@ private:
     TWeakObjectPtr<UOculusXRHandComponent> RightTrackedHand;
     EDvtHandGrip LeftGrip = EDvtHandGrip::Gripped;
     EDvtHandGrip RightGrip = EDvtHandGrip::Gripped;
+    bool bTrackingAvailable = false, bLeftTracked = false, bRightTracked = false;
 };

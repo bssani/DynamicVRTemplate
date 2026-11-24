@@ -8,6 +8,11 @@
 			"Name": "DynamicVRTemplate",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "DynamicVRTemplateEditorTools",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [

@@ -24,6 +24,12 @@ ADvtPlayerController::ADvtPlayerController()
     PrimaryActorTick.bCanEverTick = true;
 }
 
+ADvtVehicle* ADvtPlayerController::GetDriveVehicle() const { return Vehicle.Get(); }
+FDvtCommandDecision ADvtPlayerController::CanResetVehicle() const
+{
+    return IsValid(Vehicle) ? ResetSequence.CanRequest() : FDvtCommandDecision{false, TEXT("No drive vehicle")};
+}
+
 void ADvtPlayerController::BeginPlay()
 {
     Super::BeginPlay();
@@ -135,6 +141,8 @@ void ADvtPlayerController::ThrottleCompleted(const FInputActionValue&) { Throttl
 void ADvtPlayerController::BrakeCompleted(const FInputActionValue&) { Brake(FInputActionValue(0.f)); }
 
 void ADvtPlayerController::PreviousCar() { if (IsValid(Vehicle)) { Vehicle->PreviousCar(); } }
+void ADvtPlayerController::SelectCar(int32 Index) { if (IsValid(Vehicle)) { Vehicle->SelectCar(Index); } }
+void ADvtPlayerController::SelectHood(int32 Index) { if (IsValid(Vehicle)) { Vehicle->SelectHood(Index); } }
 void ADvtPlayerController::NextCar() { if (IsValid(Vehicle)) { Vehicle->NextCar(); } }
 void ADvtPlayerController::PreviousHood() { if (IsValid(Vehicle)) { Vehicle->PreviousHood(); } }
 void ADvtPlayerController::NextHood() { if (IsValid(Vehicle)) { Vehicle->NextHood(); } }
