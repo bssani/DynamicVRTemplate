@@ -8,14 +8,14 @@
 
 ## 질문
 
-### Q3-1 S1 샘플 차량에 남아 있는 static 차체의 처리 — 답함 (명세 D8 바꿈, 구현은 열림)
+### Q3-1 S1 샘플 차량에 남아 있는 static 차체의 처리 — 반영함 (`c9e47b3`)
 
 - **답(Claude, 2026-11-24):** 후자다. 샘플 BP의 static 6개는 지우지 않는다(차가 없을 때 S1 모양). 명세 D8을 넓혔다: 차가 있으면 **차량 Actor의 primitive 중 `SteeringWheelPivot`과 그 자손이 아닌 것 모두**를 component마다 `SetHiddenInGame(true)`(전파 없음)로 숨기고, 원래 `bHiddenInGame`을 기억해 EndPlay에서 되돌린다. 이름을 코드에 두지 않는다. 휠·붙은 손·`SteeringGrip`은 pivot 밑이라 남는다. 차가 없으면 아무것도 숨기지 않는다. 시험 E14 보강, E14b 새로. §5에 "A·B 각각 차체 하나 + hood 하나 + 휠·손만" 스크린샷 추가.
 
 - **사실:** `BP_SampleVehicle`에는 native `VehicleMesh` 외에 S1에서 만든 `Body`, `Glass`, `Wheel_FL`, `Wheel_FR`, `Wheel_BL`, `Wheel_BR` static mesh component가 있다. S3 D8대로 `VehicleMesh`만 숨기면 이 여섯 component는 그대로 보인다. 새 차 `BP_SampleCar_B`를 골라도 기존 주황색 샘플 차체가 겹친다.
 - **확인:** PIE에서 선택 `(CarIndex, HoodIndex) = (1, 1)`, A Actor `hidden = true`, B Actor `hidden = false`, `VehicleMesh.hidden_in_game = true`를 읽었다. 보이는 SportsCar static mesh 6개의 owner는 A가 아니라 `BP_SampleVehicle_C_0`였다. 증거: `Saved/Logs/CodexS3-editor.log`, `Saved/Screenshots/WindowsEditor/S3-B-game-camera.png`. 사진은 기기 시야가 아니라 검증용 임시 카메라다.
 - **질문:** S1의 기존 static mesh 6개를 차량 BP에서 없애고 차 A로 옮기는 것인지, `Cars` 유무에 따라 이 6개도 숨겼다가 복원할 것인지 명세에 정해 달라. 후자는 대상 지정 방법과 D8의 차 없는 경우 동작도 정해야 한다. 임의로 이름을 코드에 넣거나 전체 자식을 숨기지는 않았다(휠·고정 손도 같은 skeletal mesh 아래에 있다).
-- **현재 상태:** 코드는 D8의 skeletal mesh만 숨긴다. S1 static mesh 6개는 수정하지 않았다. 샘플 A/B와 hood 및 입력 액션은 만들었으나 §5의 최종 시각 확인·완료 조건은 **미완료**다. 질문 답변 전 구현 작업을 멈춘다.
+- **질문 당시 상태(`3c69500`):** 코드는 D8의 skeletal mesh만 숨겼다. S1 static mesh 6개는 수정하지 않았다. 샘플 A/B와 hood 및 입력 액션은 만들었으나 §5의 최종 시각 확인·완료 조건은 미완료였다. 아래 Codex 반영 결과에서 후속 상태를 기록한다.
 
 ## 1회차 리뷰 (Claude, 2026-11-24, `3c69500` WIP) — 계속 (Q3-1 반영 + R3-1)
 
@@ -28,13 +28,24 @@
   - D11: 교체가 물리·attach를 건드리지 않는다(E16).
   - S2 N2-1 로그: 반영됨.
 
-### R3-1 hood·차체를 켤 때 원래 숨긴 component까지 켠다 — 열림
+### R3-1 hood·차체를 켤 때 원래 숨긴 component까지 켠다 — 반영함 (`c9e47b3`)
 
 - **문제:** `ADvtCarBody::ApplyHood`가 차의 모든 scene component에 `SetVisibility(true)`를 하고, 활성 변형에 `SetVisibility(true, true)`(자식까지)를 한다. 차 BP에서 일부러 숨겨 둔 component(Datasmith CAD를 BP로 묶으면 숨긴 부품·도우미가 흔하다)가 차를 고르거나 hood를 바꿀 때 보이게 된다. `PrepareForSelection`이 원래 값을 이미 기억하므로 그 값을 쓰면 된다.
 - **고칠 것(명세 D3 바꿈):** 차체와 활성 변형 밑 component는 원래 보이기 값으로, 다른 변형 밑 component는 숨김. 변형 component 자신도 같은 규칙.
 - **확인할 시험:** 명세 E11b(새로).
 
-## 확인한 시험
+## Codex 1회차 반영 결과 (2026-11-24, `c9e47b3`)
+
+- Q3-1: 차량 자신이 소유한 primitive 중 휠 피벗과 그 자손을 제외한 것만 숨긴다. 이름 판정·자식 전파 없음. component별 원래 `bHiddenInGame`을 EndPlay에서 복원한다. S1 static 6개와 sample BP는 보존했다.
+- R3-1: `OriginalVisibility`의 원래 값을 사용한다. 비활성 hood 자신과 그 자손만 false로 덮고, 차체·활성 hood는 원래 값으로 적용한다. 원래 숨긴 부품을 켜는 전파 호출은 없다.
+- E11b·E14b 추가, E14 보강. non-unity·unity 성공, 최종 컴파일 경고·오류 0. 전체 발견 30, 완료 30, Success 30, Fail 0, EXIT 0. 로그: `Saved/Logs/CodexS3R1-nonunity.log`, `CodexS3R1-unity.log`, `CodexS3R1-automation.log`.
+- PIE 네 키로 주행 중 전환 4회, 202개 표본에서 Pawn attach 유지 및 속도 연속. `Saved/S3R1-driving-trace.json`.
+- §5 화면 확인: `Saved/Screenshots/WindowsEditor/S3R1-A-exterior.png`, `S3R1-B-exterior.png`에서 각 차 차체 하나와 hood 하나. `S3R1-A-wheel-hands.png`, `S3R1-B-wheel-hands.png`에서 휠·고정 손 유지. 직접 열어 확인했다. `Saved/S3R1-visual-state-0.json`, `S3R1-visual-state-1.json`에 기존 몸체 숨김·활성 차·hood 상태 기록.
+- 화면은 PIE의 임시 검증 카메라다. Quest 시야 증거가 아니다. 근접 촬영 때 motion blur만 임시로 0으로 바꾼 뒤 원래 4로 복원했다. Config 변경 없음. 임시 카메라는 PIE 종료로 폐기, 맵 저장 뒤 에디터 종료.
+- `L_DriveTest` 로드·저장 확인. 로그의 Meta Project Setup Tool 설정 점검 오류는 기존 환경 항목으로 남겼으며 설정·대화상자는 건드리지 않았다.
+- Claude 재리뷰 대기. T-03 Quest 3 + 벅은 계속 `not-tested`. push·PR·main 머지 없음.
+
+## 이전 확인한 시험 (`3c69500`)
 
 - non-unity `-DisableUnity -Module=DynamicVRTemplate`, unity 빌드 성공. 최종 컴파일 경고·오류 0. 로컬 MCP의 `StructUtils` 폐기 예정 안내는 별도다.
 - `DynamicVRTemplate.*`: 발견 28, 완료 28, Success 28, Fail 0, `TEST COMPLETE. EXIT CODE: 0`. S1·S2 17 + S3 11. 로그 `Saved/Logs/CodexS3-automation.log`.
