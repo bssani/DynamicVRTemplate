@@ -21,7 +21,7 @@
 - **"시야 먼저"(`bDrawEyeFirst` 참)로 두면 PC 창의 시야가 검게 나온다.** 엔진이 두 번째 복사(칸)에서도 `bClearBlack`을 끄지 않아 창 전체를 다시 지운다. "칸 먼저"일 때만 끈다(엔진 `Engine/Plugins/Runtime/XRBase/Source/XRBase/Private/DefaultSpectatorScreenController.cpp:284-291` vs `:292-296`, 2026-11-24 이 엔진에서 다시 확인). vBoR P5k 머지 뒤 기기에서 겪은 문제다.
 - **눈 영상은 영역 비율에 맞춰 가운데를 잘라 채운다**(같은 파일 `:268-275`). 16:9로 채우면 VR 시야 위아래가 잘리고, 4:3이면 헤드셋에서 보는 범위와 비슷하다(vBoR 사용자 관찰, P5h D3).
 - **창 크기:** VR에서 `FSceneViewport::GetSizeXY`는 눈 렌더 크기일 수 있다. 그래서 창의 client 크기(`SWindow::GetClientSizeInScreen`)를 읽는다(vBoR `VBoRSpectatorSubsystem.cpp:37-46`).
-- **이름을 읽는 곳(S3):** `ADvtVehicle::GetCarName()`·`GetHoodName()`·`GetCarIndex()`·`GetCarCount()`·`GetHoodIndex()`·`GetHoodCount()`(`Drive/DvtVehicle.h:51-62`). 이름이 비어 있으면 빈 `FText`를 돌려준다(`DvtVehicle.cpp:96-106`, `DvtCarBody.cpp:50-53`). 차가 없으면 `GetCarIndex() == -1`이다(`Cars/DvtSelectionLogic.h` `Initialize`).
+- **이름을 읽는 곳(S3):** `ADvtVehicle::GetCarName()`·`GetHoodName()`·`GetCarIndex()`·`GetCarCount()`·`GetHoodIndex()`·`GetHoodCount()`(`Drive/DvtVehicle.h:63-74`). 이름이 비어 있으면 빈 `FText`를 돌려준다(`DvtVehicle.cpp:109-119`, `DvtCarBody.cpp:50-53`). 차가 없으면 `GetCarIndex() == -1`이다(`Cars/DvtSelectionLogic.h` `Initialize`).
 - **화면 메시지:** S1 `UDvtScreenMessageSubsystem`이 Game·PIE에서 `GAreScreenMessagesEnabled`를 끈다. 관전 화면은 화면 메시지를 쓰지 않으므로 서로 상관없다.
 - **모듈:** `FWidgetRenderer`는 `UMG`, 위젯은 `Slate`·`SlateCore`다. 지금 `DynamicVRTemplate.Build.cs`에는 셋 다 없다.
 
