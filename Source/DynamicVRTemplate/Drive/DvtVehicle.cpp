@@ -1,5 +1,6 @@
 #include "Drive/DvtVehicle.h"
 #include "Drive/DvtDriveLogic.h"
+#include "Grip/DvtSteeringGripComponent.h"
 #include "ChaosVehicleMovementComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -17,6 +18,15 @@ ADvtVehicle::ADvtVehicle()
     SteeringWheelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SteeringWheelMesh"));
     SteeringWheelMesh->SetupAttachment(SteeringWheelPivot);
     SteeringWheelMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    SteeringGrip = CreateDefaultSubobject<UDvtSteeringGripComponent>(TEXT("SteeringGrip"));
+    SteeringGrip->SetupAttachment(SteeringWheelPivot);
+    LeftGripHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LeftGripHand"));
+    LeftGripHand->SetupAttachment(SteeringWheelPivot);
+    LeftGripHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    RightGripHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RightGripHand"));
+    RightGripHand->SetupAttachment(SteeringWheelPivot);
+    RightGripHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    SteeringGrip->SetGripHands(LeftGripHand, RightGripHand);
 }
 
 void ADvtVehicle::BeginPlay()

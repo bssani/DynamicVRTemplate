@@ -9,7 +9,8 @@ public class DynamicVRTemplate : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[] {
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
-			"HeadMountedDisplay", "XRBase", "ChaosVehicles"
+			"HeadMountedDisplay", "XRBase", "ChaosVehicles", "OculusXRInput"
 		});
+		PrivateDependencyModuleNames.AddRange(new string[] { "RenderCore", "RHI" });
 	}
 }

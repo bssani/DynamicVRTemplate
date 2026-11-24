@@ -1,6 +1,8 @@
 #include "Drive/DvtPlayerController.h"
 #include "Drive/DvtResetPoint.h"
 #include "Drive/DvtVehicle.h"
+#include "Drive/DvtVRPawn.h"
+#include "Grip/DvtSteeringGripComponent.h"
 #include "ChaosVehicleMovementComponent.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Components/SceneComponent.h"
@@ -32,6 +34,7 @@ void ADvtPlayerController::BeginPlay()
     }
     Vehicle = Vehicles[0];
     AttachVRPawn();
+    ConnectTrackedHands();
     if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
     {
         if (auto* Inputs = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(); Inputs && DriveMappingContext)
@@ -45,6 +48,16 @@ void ADvtPlayerController::OnPossess(APawn* InPawn)
 {
     Super::OnPossess(InPawn);
     AttachVRPawn();
+    ConnectTrackedHands();
+}
+
+void ADvtPlayerController::ConnectTrackedHands()
+{
+    // Independent of attachment; calibration can own the pawn transform (S2 D7).
+    if (const auto* VRPawn = Cast<ADvtVRPawn>(GetPawn()); IsValid(Vehicle) && VRPawn)
+    {
+        Vehicle->SteeringGrip->SetTrackedHands(VRPawn->LeftTrackedHand, VRPawn->RightTrackedHand);
+    }
 }
 
 void ADvtPlayerController::AttachVRPawn()
