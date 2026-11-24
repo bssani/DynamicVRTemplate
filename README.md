@@ -3,7 +3,7 @@
 Seated VR driving on a physical seating buck (Unreal Engine 5.7.4, Meta Quest 3 over Link, hand tracking, Chaos Vehicles).
 The driver sits in a physical buck with a steering wheel and pedals and drives a virtual car. Car body designs and hood variants can be switched at runtime. A spectator view goes to the PC monitor and an operator window controls the session; nothing is shown as text inside the headset.
 
-Status: S3 cars and hoods. Device testing remains not-tested. See [Docs/Plan.md](Docs/Plan.md) (Korean).
+Status: S4 buck alignment. Device testing remains not-tested. See [Docs/Plan.md](Docs/Plan.md) (Korean).
 
 ## Setup
 
@@ -24,7 +24,7 @@ On the buck PC, enable the simracing device and configure **Project Settings →
 
 `Content/Input/IMC_Drive` uses placeholder `GenericUSBController_Axis1` for steering, `Axis2` for throttle and `Axis3` for brake. Match these to your device in Raw Input settings and adjust mapping modifiers so steering covers -1 to +1 (center 0), and each pedal covers 0 to 1 (released 0). Verify both endpoints and release before driving. Set the vehicle's `SteeringLockToLockDegrees` to the same total rotation range as the simracing software (default 900 deg). The visible wheel follows this raw axis directly.
 
-The sample SportsCar and PhysicsMaterials assets under `Content/Vehicles/` come from Epic's Vehicle template, copied with their original package paths. They are development samples; replace them with local assets for site use. S1 uses an approximate driver floor origin; buck alignment is added in S4. Quest 3 + buck validation is T-01 in the plan and remains `not-tested`.
+The sample SportsCar and PhysicsMaterials assets under `Content/Vehicles/` come from Epic's Vehicle template, copied with their original package paths. They are development samples; replace them with local assets for site use. Without saved alignment, the VR Pawn uses the approximate `DriverOrigin`. Quest 3 + buck validation is T-01 in the plan and remains `not-tested`.
 
 ## Cars and hoods
 
@@ -35,3 +35,31 @@ For each hood option, add a `DvtHoodVariantComponent` and attach its meshes bene
 Set each car's `SteeringWheelMesh`, `SteeringWheelMeshTransform`, `RimRadiusCm`, `LeftGripHandTransform`, and `RightGripHandTransform`. Wheel and hand transforms are relative to the vehicle's fixed `SteeringWheelPivot`; keep that pivot at the buck wheel position. If a CAD wheel mesh uses the car origin as its pivot, use `SteeringWheelMeshTransform` to offset it into the wheel pivot frame before it rotates. An empty wheel mesh hides the wheel. Enter and release distances remain shared settings on `SteeringGrip`.
 
 During Play, PageUp / PageDown select the previous / next car; [ / ] select the previous / next hood. Relative commands wrap around and have separate car and hood cooldowns (default 0.5 s). Direct `SelectCar(index)` and `SelectHood(index)` commands bypass cooldowns. Repeating the current index does nothing. A car switch retains the requested hood index, displaying the last available hood if the new car has fewer; returning to the original car restores the requested index. Selection only changes visuals, wheel mesh, and hand placement, including while driving. Quest 3 + buck validation is T-03 and remains `not-tested`.
+
+## Buck alignment
+
+`Plugins/VRCalibrationKit` is copied unchanged from [VRCalibrationKit commit e915647](https://github.com/bssani/VRCalibrationKit/tree/e915647/Plugins/VRCalibrationKit). Print marker PDFs from that repository's `Docs/Markers/` at **100% scale, 60 mm**. Attach markers to fixed parts of the seating buck. Default marker IDs are 1–4, matching `AlignPoint1`–`AlignPoint4` on the vehicle, in `Order` 1–4.
+
+In `BP_SampleVehicle`, replace the four placeholder point positions with the measured buck marker centers relative to the shared vehicle/SgRP coordinate frame (+X forward, +Y right, +Z up, cm). The placeholders span a 40 × 40 cm square; real points must span at least 20 cm. Set `Alignment.FloorLocalZCm` to the real floor height in that same local frame. Keep the vehicle root scale **(1,1,1)** in the Blueprint and every level instance. A scaled root silently prevents alignment and sets `NeedsCheck`; check the component's `Reason`. All car designs share these points and alignment.
+
+Open `Content/Samples/Maps/L_Calibrate` and Play. This level uses the engine PlayerController without driving bindings, so S saves calibration rather than braking. Use **M → G → S**: measure all four markers, preview their fit, then save. H undoes the preview. Read progress and `Max XY` in the PC Output Log (`LogVRCalMarker`). Headset messages are disabled; only the four alignment point numbers 1–4 may appear between G and H in this calibration level. The driving level has no calibrator or point numbers.
+
+Open `L_DriveTest` to drive with the saved alignment. **F9** requests reapplication; a request during anchor discovery is deferred with one log line. Without saved alignment, the Pawn stays attached to `DriverOrigin`. Reapply and vehicle Reset never recenter. Saved values live under `Saved/Calibration/` and are not committed.
+
+Anchors are off by default. On each buck PC, enable them in the ignored `Config/UserEngine.ini`:
+
+```ini
+[ConsoleVariables]
+VRCal.AnchorAlignment=1
+```
+
+Enable Spatial Data in Link and look toward the calibrated area on Play. Wait for `Alignment Applied` (anchor restore usually takes a few seconds). To check restoration after a Link reconnect or editor restart, open `L_Calibrate`, wait for restore, then press **M only**, without G or S. The log `Marker fit vs pawn (Applied) | dX … | dY …` must say `Applied` and both absolute dX and dY must be within **2 cm**. `NoSavedValue` or `NeedsCheck` does not pass. If outside the limit, recalibrate and record the result. Reboot and next-day restoration still need device testing.
+
+| Event | Action |
+|---|---|
+| Play restart, Link reconnect, headset sleep | Let the anchor restore; use the M-only check if uncertain. |
+| Boundary (guardian) redrawn | Recalibrate in `L_Calibrate`: M → S. |
+| Buck or markers moved | Recalibrate: M → S. |
+| `anchor not found` | Check Link Spatial Data, look toward the calibrated area, restart Play. Recalibrate if it persists. |
+
+With anchors disabled, saved values are valid only while the Stage origin stays unchanged; a Link reconnect can invalidate them. Remove `Config/UserEngine.ini` before automated tests because it overrides test defaults. Quest 3 + buck validation is T-04 and remains `not-tested`.

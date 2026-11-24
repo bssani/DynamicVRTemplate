@@ -8,6 +8,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
+#include "VRCalAlignmentComponent.h"
+#include "VRCalAlignPointComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogDvtSelection, Log, All);
 
@@ -16,6 +18,17 @@ ADvtVehicle::ADvtVehicle()
     AutoPossessPlayer = EAutoReceiveInput::Disabled;
     AutoPossessAI = EAutoPossessAI::Disabled;
     GetVehicleMovementComponent()->SetRequiresControllerForInputs(false);
+    Alignment = CreateDefaultSubobject<UVRCalAlignmentComponent>(TEXT("Alignment"));
+    AlignPoint1 = CreateDefaultSubobject<UVRCalAlignPointComponent>(TEXT("AlignPoint1"));
+    AlignPoint2 = CreateDefaultSubobject<UVRCalAlignPointComponent>(TEXT("AlignPoint2"));
+    AlignPoint3 = CreateDefaultSubobject<UVRCalAlignPointComponent>(TEXT("AlignPoint3"));
+    AlignPoint4 = CreateDefaultSubobject<UVRCalAlignPointComponent>(TEXT("AlignPoint4"));
+    int32 Order = 1;
+    for (auto* Point : {AlignPoint1.Get(), AlignPoint2.Get(), AlignPoint3.Get(), AlignPoint4.Get()})
+    {
+        Point->SetupAttachment(GetRootComponent());
+        Point->Order = Order++;
+    }
     DriverOrigin = CreateDefaultSubobject<USceneComponent>(TEXT("DriverOrigin"));
     DriverOrigin->SetupAttachment(GetMesh());
     SteeringWheelPivot = CreateDefaultSubobject<USceneComponent>(TEXT("SteeringWheelPivot"));
